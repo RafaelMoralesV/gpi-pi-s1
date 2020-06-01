@@ -1,0 +1,6 @@
+{
+    "factores" : {
+        "asertividad" : ["si", "no", "exactamente", "claro"],
+        "liderazgo" : ["nosotros", "hemos", "vamos"]
+    }
+}
