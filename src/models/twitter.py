@@ -4,6 +4,9 @@ from tweepy import Stream
 from tweepy import API
 from tweepy import Cursor
 
+import numpy as np
+import pandas as pd
+
 class TwitterClient():
 
     def __init__(self, twitter_user=None):
@@ -11,6 +14,10 @@ class TwitterClient():
         self.twitter_client = API(self.auth)
 
         self.twitter_user = twitter_user
+
+    def get_twitter_client_api(self):
+        return self.twitter_client
+
     # timeline de los tweets
     def get_user_timeline_tweets(self, num_tweets):
         tweets = []
@@ -59,3 +66,33 @@ class TwitterData(StreamListener):
         if status == 420:
             return False
         print(status)
+
+
+class TweetAnalyzer():
+    def tweets_to_data_frame(self, tweets):
+        df = pd.DataFrame(data=[tweet.text for tweet in tweets], columns=['Tweets'])
+
+        df['id'] = np.array([tweet.id for tweet in tweets])
+        df['len'] = np.array([len(tweet.text) for tweet in tweets])
+        df['favorite_count'] = np.array([tweet.favorite_count for tweet in tweets])
+        #df['retweets'] = np.array([tweet.retweets for tweet in tweets])
+        df['created_at'] = np.array([tweet.created_at for tweet in tweets])
+        #df['favorite'] = np.array([tweet.favorite for tweet in tweets])
+        df['user'] = np.array([tweet.user for tweet in tweets])
+        #df['author'] = np.array([tweet.author for tweet in tweets])
+        #df['favorited'] = np.array([tweet.favorited for tweet in tweets])
+        df['source'] = np.array([tweet.source for tweet in tweets])
+        #df['retweet'] = np.array([tweet.retweet for tweet in tweets])
+        df['retweet_count'] = np.array([tweet.retweet_count for tweet in tweets])
+        #df['retweeted'] = np.array([tweet.retweeted for tweet in tweets])
+        #df['retweeted_status'] = np.array([tweet.retweeted_status for tweet in tweets])
+        #df['text'] = np.array([tweet.text for tweet in tweets])
+        #df['geo'] = np.array([tweet.geo for tweet in tweets])
+        #df['in_reply_to_status_id'] = np.array([tweet.in_reply_to_status_id for tweet in tweets])
+        #df['in_reply_to_screen_name'] = np.array([tweet.in_reply_to_screen_name for tweet in tweets])
+
+        return df
+
+    def data_frame_to_csv(self, dataFrame):
+        dataFrame.to_csv('../../data/tweets.csv', encoding='utf-8')
+        return 'success'
