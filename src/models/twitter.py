@@ -4,8 +4,8 @@ from tweepy import Stream
 from tweepy import API
 from tweepy import Cursor
 
-import numpy as np
-import pandas as pd
+#import numpy as np
+#import pandas as pd
 
 class TwitterClient():
 
@@ -69,7 +69,8 @@ class TwitterData(StreamListener):
 
 
 class TweetAnalyzer():
-    def tweets_to_data_frame(self, tweets):
+    pass
+"""     def tweets_to_data_frame(self, tweets):
         df = pd.DataFrame(data=[tweet.text for tweet in tweets], columns=['Tweets'])
 
         df['id'] = np.array([tweet.id for tweet in tweets])
@@ -95,4 +96,4 @@ class TweetAnalyzer():
 
     def data_frame_to_csv(self, dataFrame):
         dataFrame.to_csv('../../data/tweets.csv', encoding='utf-8')
-        return 'success'
+        return 'success' """

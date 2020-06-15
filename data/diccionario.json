@@ -1,5 +1,5 @@
-[
-    {
+{
+    "factores": {
         "asertividad": [
             "yo creo",
             "pienso que",
@@ -48,7 +48,7 @@
             "amor propio",
             "tengo confianza"
         ],
-        "colaboracion_y_cooperacion": [
+        "colaboracion_cooperacion": [
             "yapo",
             "ya po",
             "difundan",
@@ -103,7 +103,7 @@
             "no puedo",
             "lo intentare"
         ],
-        "desarrollar_y_estimular_a_los_demas": [
+        "desarrollar_estimular_otros": [
             "sonrie",
             "tu puedes",
             "demuestrales",
@@ -119,7 +119,7 @@
             "cree en ti",
             "exito"
         ],
-        "desarrollo_de_las_relaciones": [
+        "desarrollo_relaciones": [
             "siguenos",
             "únete",
             "menciona",
@@ -183,7 +183,7 @@
             "planes",
             "nuestras metas"
         ],
-        "manejo_de_conflictos": [
+        "manejo_conflictos": [
             "comunicacion",
             "violencia",
             "discusión",
@@ -195,7 +195,7 @@
             "desacuerdo",
             "disyuntiva"
         ],
-        "motivación_de_logro": [
+        "motivación_logro": [
             "sin miedo",
             "vamos wn",
             "se puede",
@@ -219,7 +219,7 @@
             "mejoría",
             "alivio"
         ],
-        "percepcion_y_comprension emocional": [
+        "percepcion_comprension_emocional": [
             "tambien me siento asi",
             "me paso algo similar",
             "siento lo mismo",
@@ -241,7 +241,7 @@
             "entendimiento",
             "politica"
         ],
-        "tolerancia_a_la_frustración": [
+        "tolerancia_frustracion": [
             "Estoy bien",
             "tranqui",
             "Me da lo mismo",
@@ -265,4 +265,4 @@
             "arrebato"
         ]
     }
-]
+}

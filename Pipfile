@@ -9,6 +9,9 @@ verify_ssl = true
 flask = "*"
 praw = "*"
 tweepy = "*"
+textblob = "*"
+flask-cors = "*"
+translate = "*"
 
 [requires]
 python_version = "3.6"
