@@ -62,7 +62,8 @@ class BaseAnalyzer:
     def match_factor_dict(self, text: str, factor : str):
         matches = 0
         for keyword in self.dictionary["factores"][factor]:
-            matches += text.find(keyword)
+            if keyword in text:
+                matches += 1
         return matches
     
     def getRandom(self) -> Analysis:

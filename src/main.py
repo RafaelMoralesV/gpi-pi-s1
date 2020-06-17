@@ -25,7 +25,7 @@ def get_reddit_user(id: str):
             "analysis" : analysis,
             "icon_img" : user.icon_img,
             "id" : user.id,
-            "name" : user.name
+            "name" : user.name,
         }
     })
 

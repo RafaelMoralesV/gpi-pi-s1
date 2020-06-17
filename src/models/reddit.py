@@ -1,6 +1,6 @@
 from models.base import Analysis, BaseAnalyzer, BaseAPIWrapper
 import praw
-from praw.models import Redditor, Comment, Subreddit
+from praw.models import Redditor, Comment, Subreddit, Submission
 from textblob import TextBlob
 from statistics import mean
 from typing import List
@@ -64,6 +64,34 @@ class RedditAnalyzer(BaseAnalyzer):
 
     def get_violencia_by_text(self, text: str) -> float:
         return self.get_optimismo_by_text(text)*-1
+
+    def get_empatia_by_user(self, redditor: Redditor):
+        return self.get_empatia_by_list([sub for sub in redditor.submissions.top("all")])
+
+    def get_empatia_by_list(self, sublist: List[Submission]):
+        resultset = [self.get_empatia_by_sub(sub) for sub in sublist]
+        score = mean(resultset)
+        return score, sublist, resultset
+
+    def get_empatia_by_sub(self, sub:Submission):
+        if(sub.selftext):
+            return self.get_empatia_by_text(sub.selftext)*0.7 + self.get_empatia_by_text(sub.title)*0.3
+        else:
+            return self.get_empatia_by_text(sub.title)
+
+    def get_empatia_by_text(self,text: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subj = blob.subjectivity
+        matches = self.match_factor_dict(text, 'empatia')
+        match_score = matches*10 if matches <= 5 else 10
+        score = pol*80+subj*10+match_score
+        print(text)
+        print(f"pol={pol} subj={subj} matches={self.match_factor_dict(text, 'empatia')}")
+        print(score)
+        print("\n")
+        return score
+
 
 
 class RedditWrapper(BaseAPIWrapper):
