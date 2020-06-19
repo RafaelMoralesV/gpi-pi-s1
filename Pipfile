@@ -12,6 +12,7 @@ tweepy = "*"
 textblob = "*"
 flask-cors = "*"
 translate = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.6"
