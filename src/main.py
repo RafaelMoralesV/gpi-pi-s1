@@ -19,6 +19,14 @@ rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 @app.route('/reddit/user/<id>', methods=["GET"])
 def get_reddit_user(id: str):
     user = rwrapper.reddit.redditor(id)
+    subs = []
+    for sub in user.submissions.top("all"):
+        subs.append({
+            "id" : sub.id,
+            "name": sub.title,
+            "n_comments" : sub.num_comments,
+            "text" : sub.selftext
+        })
     analysis = Analysis().toRandomDict()
     return jsonify({
         "user" : {
@@ -26,6 +34,8 @@ def get_reddit_user(id: str):
             "icon_img" : user.icon_img,
             "id" : user.id,
             "name" : user.name,
+            "submissions" : subs,
+            "n_entries" : len(subs),
         }
     })
 
@@ -77,6 +87,14 @@ def get_subreddit(id: str):
         "n_entries" : 25,
         "submissions" : subs
     })
+
+@app.route("/reddit/analyze-sub", methods=["GET"])
+def analyze_reddit_sub():
+    data = request.json
+    #title = data["name"]
+    #body = data["text"]
+    return jsonify({"analysis" : Analysis().toRandomDict()})
+
 
 @app.route('/translate', methods=["POST"])
 def translate_text():
