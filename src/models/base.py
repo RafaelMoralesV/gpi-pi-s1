@@ -42,7 +42,6 @@ class Analysis:
         factors : List[str] = [i for i in self.__dict__.keys() if i[:1] != '_']
         dic = dict()
         for factor in factors:
-            print(factor)
             dic[factor] = getattr(self, factor)
         return dic
     
@@ -62,7 +61,7 @@ class BaseAnalyzer:
     def match_factor_dict(self, text: str, factor : str):
         matches = 0
         for keyword in self.dictionary["factores"][factor]:
-            if keyword in text:
+            if keyword.lower() in text:
                 matches += 1
         return matches
     

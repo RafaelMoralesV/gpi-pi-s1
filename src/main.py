@@ -18,82 +18,49 @@ rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 
 @app.route('/reddit/user/<id>', methods=["GET"])
 def get_reddit_user(id: str):
-    user = rwrapper.reddit.redditor(id)
-    subs = []
-    for sub in user.submissions.top("all"):
-        subs.append({
-            "id" : sub.id,
-            "name": sub.title,
-            "n_comments" : sub.num_comments,
-            "text" : sub.selftext
-        })
-    analysis = Analysis().toRandomDict()
+    user_data = rwrapper.analyze_user_by_id(id)
     return jsonify({
-        "user" : {
-            "analysis" : analysis,
-            "icon_img" : user.icon_img,
-            "id" : user.id,
-            "name" : user.name,
-            "submissions" : subs,
-            "n_entries" : len(subs),
-        }
+        "user" : user_data
     })
 
 @app.route('/reddit/subreddit', methods=["GET"])
 def get_subreddits():
     subreddits = []
+    entries = 0
     names = ["golang", "Fitness", "lectures", "videogames", "politics", "Paranormal"]
     for name in names:
         subreddit = rwrapper.reddit.subreddit(name)
-        analysis = Analysis().toRandomDict()
+        analysis, submissions = rwrapper.analyzer.analyze_subreddit(subreddit)
+        entries += len(submissions)
         subreddits.append({
-            "analysis" : analysis,
+            "analysis" : analysis.toDict(),
             "description": subreddit.public_description,
             "id" : subreddit.id,
             "name": subreddit.display_name,
             "subscribers" : subreddit.subscribers,
             "over18" : subreddit.over18
         })
-    
     return jsonify({
         "subreddits": subreddits,
-        "n_entries" : 230
+        "n_entries" : entries
     })
 
 @app.route('/reddit/subreddit/<id>', methods=["GET"])
 def get_subreddit(id: str):
-    subreddit = rwrapper.reddit.subreddit(id)
-    
-    analysis = Analysis().toRandomDict()
-
-    subs = []
-    for sub in subreddit.hot(limit=25):
-        subs.append({
-            "id" : sub.id,
-            "name": sub.title,
-            "n_comments" : sub.num_comments,
-            "text" : sub.selftext
-        })
-    
+    subreddit_data = rwrapper.analyze_subreddit_by_id(id)
     return jsonify({
-        "subreddit" : {
-            "analysis" : analysis,
-            "description": subreddit.public_description,
-            "id" : subreddit.id,
-            "name": subreddit.display_name,
-            "subscribers" : subreddit.subscribers,
-            "over18" : subreddit.over18
-        },
-        "n_entries" : 25,
-        "submissions" : subs
+        "subreddit" : subreddit_data
     })
 
-@app.route("/reddit/analyze-sub", methods=["GET"])
+@app.route("/reddit/analyze-sub", methods=["POST"])
 def analyze_reddit_sub():
     data = request.json
-    #title = data["name"]
-    #body = data["text"]
-    return jsonify({"analysis" : Analysis().toRandomDict()})
+    if "sub_id" in data:
+        sub_id = data["sub_id"]
+        if sub_id != "":
+            analysis = rwrapper.analyze_submission_by_id(sub_id)
+            return jsonify({"analysis" : analysis.toDict()})
+    return Response("", status=400)
 
 
 @app.route('/translate', methods=["POST"])
