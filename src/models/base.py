@@ -58,13 +58,20 @@ class BaseAnalyzer:
     def __init__(self, dictionary: dict):
         self.dictionary = dictionary
 
-    def match_factor_dict(self, text: str, factor : str):
+    def match_factor_dict(self, text: str, factor : str) -> int:
         matches = 0
         for keyword in self.dictionary["factores"][factor]:
             if keyword.lower() in text:
                 matches += 1
         return matches
     
+    def at_start(self, text: str, sentences: List[str]) -> bool:
+        first_sentence = text.split(",")[0].lower()
+        for keyword in sentences:
+            if first_sentence == keyword:
+                return True
+        return False
+
     def getRandom(self) -> Analysis:
         analysis = Analysis().toRandomDict()
         return analysis
