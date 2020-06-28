@@ -1,10 +1,14 @@
+import os
 from dictionary import get_dictionary
-from flask import Flask, request, jsonify, Response
+from sheet import str_to_sheet
+from flask import Flask, request, jsonify, Response, send_file
+from werkzeug.datastructures import FileStorage
 from flask_cors import CORS
 from models.base import Analysis
-from models.reddit import RedditWrapper, RedditAnalyzer
+from models.reddit import RedditWrapper, RedditAnalyzer, Submission, Redditor
 from models.twitter import TwitterData, TwitterStreamer, TwitterClient, TweetAnalyzer
 from tweepy import OAuthHandler
+from typing import List, IO
 import tweepy
 import praw
 from translate import Translator
@@ -16,6 +20,29 @@ dictionary = get_dictionary('./data/diccionario.json')
 reddit = praw.Reddit(client_id="AUs7RM1sxg8Itg", user_agent="my user agent", client_secret="NVkkQtixo7aMWnDjGqi8fCmUP_g")
 rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 
+@app.route('/reddit/user', methods=["GET", "POST"])
+def get_reddit_users():
+    names: List[str] = []
+    if request.method == "GET":
+        names = ["joeyisgoingto", "antikarma98", "Frustration", "Ginger_Lupus", "BreakfastforDinner"]
+    else:
+        if 'plantilla' not in request.files:
+            return Response("", status=400)
+        else:
+            data: FileStorage = request.files["plantilla"]
+            sheet = str_to_sheet(data.stream.read())
+            names = sheet["redditors_name"]
+    users: List[dict] = []
+    entries: int = 0
+    for name in names:
+        user_data = rwrapper.analyze_user_by_id(name)
+        entries += user_data["n_entries"]
+        users.append(user_data)
+    return jsonify({
+        "users":users,
+        "n_entries":entries
+    })
+
 @app.route('/reddit/user/<id>', methods=["GET"])
 def get_reddit_user(id: str):
     user_data = rwrapper.analyze_user_by_id(id)
@@ -23,23 +50,24 @@ def get_reddit_user(id: str):
         "user" : user_data
     })
 
-@app.route('/reddit/subreddit', methods=["GET"])
+@app.route('/reddit/subreddit', methods=["GET", "POST"])
 def get_subreddits():
-    subreddits = []
-    entries = 0
-    names = ["golang", "Fitness", "lectures", "videogames", "politics", "Paranormal"]
+    names : List[str] = []
+    if request.method == 'GET':
+        names = ["golang", "Fitness", "lectures", "videogames", "politics", "Paranormal"]
+    else:
+        if 'plantilla' not in request.files:
+            return Response("", status=400)
+        else:
+            data: FileStorage = request.files['plantilla']
+            sheet = str_to_sheet(data.stream.read())
+            names = sheet["subreddits_name"]
+    subreddits: List[Submission] = []
+    entries: int = 0
     for name in names:
-        subreddit = rwrapper.reddit.subreddit(name)
-        analysis, submissions = rwrapper.analyzer.analyze_subreddit(subreddit)
-        entries += len(submissions)
-        subreddits.append({
-            "analysis" : analysis.toDict(),
-            "description": subreddit.public_description,
-            "id" : subreddit.id,
-            "name": subreddit.display_name,
-            "subscribers" : subreddit.subscribers,
-            "over18" : subreddit.over18
-        })
+        subreddit_data = rwrapper.analyze_subreddit_by_id(name)
+        entries += len(subreddit_data["submissions"])
+        subreddits.append(subreddit_data)
     return jsonify({
         "subreddits": subreddits,
         "n_entries" : entries
@@ -69,6 +97,10 @@ def translate_text():
     text = data["text"]
     translation = translator.translate(text)
     return jsonify({"translation" : translation})
+
+@app.route('/template', methods=["GET"])
+def download():
+    return send_file("../data/template.xlsx", as_attachment=True)
 
 @app.route('/twitter/user/<name>')
 def get_twitter_user(name: str):

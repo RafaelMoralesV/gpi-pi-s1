@@ -3,7 +3,7 @@
 ## Instalación y Ejecución
 
 Requisitos
-- Python : 3.6+
+- Python : 3.6.9+
 
 Instalar Pipenv
 ```bash
