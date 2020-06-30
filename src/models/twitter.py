@@ -32,6 +32,20 @@ class TwitterClient():
         }
         return hashtag_data
 
+    def get_tweet(self, name):
+        tweets = []
+        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
+            tweets.append({
+            "id": tweet.id,
+            "text": tweet.text
+            }) 
+        tweet_data = {
+            "tweets": tweets,
+            "user":name,
+            "n_entries": len(tweets)
+        }
+        return tweet_data
+        
     # timeline de los tweets
     def get_user_timeline_tweets(self, num_tweets):
         tweets = []
