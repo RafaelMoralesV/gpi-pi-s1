@@ -18,6 +18,20 @@ class TwitterClient():
     def get_twitter_client_api(self):
         return self.twitter_client
 
+    def get_hashtag(self, twitter_hashtag):
+        hashtags = []
+        for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(10):
+            hashtags.append({
+                "id": tweet.id,
+                "text": tweet.text
+            })
+        hashtag_data = {
+            "hashtags" : hashtags,
+            "hashtag_name": twitter_hashtag,
+            "n_entries" : len(hashtags)
+        }
+        return hashtag_data
+
     # timeline de los tweets
     def get_user_timeline_tweets(self, num_tweets):
         tweets = []

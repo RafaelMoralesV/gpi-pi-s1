@@ -107,7 +107,27 @@ def get_twitter_user(name: str):
     twitter_client = TwitterClient()
     api = twitter_client.get_twitter_client_api()
     user = api.get_user(name)
-    return jsonify({"user": user._json})
+    user_data = {
+        "id": user.id,
+        "name": user.name,
+        "screen_name": user.screen_name,
+        "description": user.description,
+        "location": user.location,
+        "friends_count": user.friends_count,
+        "followers_count": user.followers_count,
+        "created_at": user.created_at,
+        "verified": user.verified,
+        "text": user.status.text
+    }
+    # return jsonify({"user": user._json})
+    return jsonify({"user": user_data})
+
+@app.route('/twitter/hashtag/<hashtag>')
+def get_twitter_hashtag(hashtag: str):
+    twitter_client = TwitterClient()
+    api = twitter_client.get_hashtag(hashtag)
+    return jsonify(api)
+    #return jsonify({"hashtag": api._json})
 
 @app.route('/twitter')
 def get_tweet():
