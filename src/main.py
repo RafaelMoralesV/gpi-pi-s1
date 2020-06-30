@@ -129,6 +129,12 @@ def get_twitter_hashtag(hashtag: str):
     return jsonify(api)
     #return jsonify({"hashtag": api._json})
 
+@app.route('/twitter/tweets/user/<name>')
+def get_tweets(name: str):
+    twitter_client = TwitterClient()
+    api = twitter_client.get_tweet(name)
+    return jsonify(api)
+
 @app.route('/twitter')
 def get_tweet():
     twitter_client = TwitterClient()
