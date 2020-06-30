@@ -19,16 +19,32 @@ class RedditAnalyzer(BaseAnalyzer):
         if is_subreddit:
             percepcion = self.switch_factor_grouped(sublist, 'percepcion')
             colaboracion = self.switch_factor_grouped(sublist, 'colaboracion')
+            conciencia = self.switch_factor_grouped(sublist, 'conciencia')
+            tolerancia = self.switch_factor_grouped(sublist, 'tolerancia')
+            comprension = self.switch_factor_grouped(sublist, 'comprension')
+            asertividad = self.switch_factor_grouped(sublist, 'asertividad')
+            desarrollo = self.switch_factor_grouped(sublist, 'desarrollo')
+            liderazgo = self.switch_factor_grouped(sublist, 'liderazgo')
         else:
             percepcion = self.switch_factor(sublist, 'percepcion')
             colaboracion = self.switch_factor(sublist, 'colaboracion')
+            conciencia = self.switch_factor(sublist, 'conciencia')
+            tolerancia = self.switch_factor(sublist, 'tolerancia')
+            comprension = self.switch_factor(sublist, 'comprension')
+            asertividad = self.switch_factor(sublist, 'asertividad')
+            desarrollo = self.switch_factor(sublist, 'desarrollo')
+            liderazgo = self.switch_factor(sublist, 'liderazgo')
 
         empatia = self.switch_factor(sublist, 'empatia')
         autoconciencia_emocional = self.switch_factor(sublist, 'autoconciencia')
         autoestima = self.switch_factor(sublist, 'autoestima')
+        motivacion = self.switch_factor(sublist, 'motivacion')
         return Analysis(
-            empatia=empatia, colaboracion=colaboracion, percepcion=percepcion, 
-            autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima), sublist
+            empatia=empatia ,colaboracion_cooperacion=colaboracion, percepcion_comprension_emocional=percepcion, 
+            autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima, 
+            conciencia_critica = conciencia, tolerancia_frustracion=tolerancia,
+            motivacion_logro = motivacion, comprension_organizativa=comprension,asertividad=asertividad,
+            desarrollo_relaciones=desarrollo, liderazgo=liderazgo), sublist
 
     def analyze_submission(self, submission: Submission) -> Analysis:
         empatia = self.switch_factor(submission, 'empatia')
@@ -36,9 +52,19 @@ class RedditAnalyzer(BaseAnalyzer):
         percepcion = self.switch_factor(submission, 'percepcion')
         autoconciencia_emocional = self.switch_factor(submission, 'autoconciencia')
         autoestima = self.switch_factor(submission, 'autoestima')
+        conciencia = self.switch_factor(submission, 'conciencia')
+        tolerancia = self.switch_factor(submission, 'tolerancia')
+        motivacion = self.switch_factor(submission, 'motivacion')
+        comprension = self.switch_factor(submission, 'comprension')
+        asertividad = self.switch_factor(submission, 'asertividad')
+        desarrollo = self.switch_factor(submission, 'desarrollo')
+        liderazgo = self.switch_factor(submission, 'liderazgo')
         return Analysis(
-            empatia=empatia, colaboracion=colaboracion, percepcion=percepcion, 
-            autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima)
+            empatia=empatia ,colaboracion_cooperacion=colaboracion, percepcion_comprension_emocional=percepcion, 
+            autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima, 
+            conciencia_critica = conciencia, tolerancia_frustracion=tolerancia,
+            motivacion_logro = motivacion, comprension_organizativa=comprension,asertividad=asertividad,
+            desarrollo_relaciones=desarrollo, liderazgo = liderazgo)
 
 
     # Autoconciencia emocional
@@ -71,6 +97,33 @@ class RedditAnalyzer(BaseAnalyzer):
         matches = self.match_factor_dict(text.lower(), 'autoestima')
         match_score = matches * 6 if matches <= 10 else 60
         score = subj*40 + match_score
+        return score
+
+    # Asertividad
+
+    def get_asertividad_by_grouped_sub(self, sub: Submission):
+        keywords = ["No", "Yes", "Thanks", "I think that", "I don't agree", "IMO"]
+        title_score = self.get_asertividad_by_text(sub.selftext, keywords, 30, 3, 40)
+        if(sub.selftext):
+            body_score = self.get_asertividad_by_text(sub.title, keywords, 30, 3, 40)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_asertividad_by_sub(self, sub: Submission):
+        keywords = ["No", "Yes", "Thanks", "I think that", "I don't agree", "IMO"]
+        title_score = self.get_asertividad_by_text(sub.selftext, keywords, 55, 2, 25)
+        if(sub.selftext):
+            body_score = self.get_asertividad_by_text(sub.title, keywords, 55, 2, 25)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_asertividad_by_text(self, text: str, keywords: List[str], pol_limit_score:int, word_limit: int, start_limit: int)->float:
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        matches = self.match_factor_dict(text.lower(), 'asertividad')
+        match_score = matches*10 if matches <= word_limit else word_limit*10
+        start_score = start_limit if self.at_start(text.lower(), keywords) else 0
+        score = start_score + pol*pol_limit_score + match_score
         return score
 
     # Colaboración y Cooperación
@@ -115,43 +168,213 @@ class RedditAnalyzer(BaseAnalyzer):
         score = pol*20+subj*10+match_score+votes_score*20
         return score
 
-    # Liderazgo
-
-    def get_liderazgo_by_sub(self, sub: Submission):
-        votes_score = sub.upvote_ratio
-        if(sub.selftext):
-            return self.get_liderazgo_by_text(sub.selftext, votes_score)*0.7 + self.get_liderazgo_by_text(sub.title, votes_score)*0.3
-        else:
-            return self.get_liderazgo_by_text(sub.title, votes_score)
-
-    def get_liderazgo_by_text(self, text:str, votes_score: float) -> float:
-        matches = self.match_factor_dict(text.lower(), 'liderazgo')
-        match_score = matches*4 if matches <= 10 else 40
-        score = votes_score*60+match_score
-        return score
-
     # Percepción y comprension emocional
 
     def get_percepcion_by_grouped_sub(self, sub:Submission):
+        title_score = self.get_percepcion_by_text(sub.selftext, 10, 20, 30)
         if(sub.selftext):
-            return self.get_percepcion_by_text(sub.selftext, 10, 20, 30)*0.7 + self.get_percepcion_by_text(sub.title, 10, 20, 30)*0.3
-        else:
-            return self.get_percepcion_by_text(sub.title, 10, 20, 30)
+            body_score = self.get_percepcion_by_text(sub.title, 10, 20, 30)
+            return self.split_score(title_score, body_score)
+        return title_score
 
     def get_percepcion_by_sub(self, sub: Submission) -> float:
+        title_score = self.get_percepcion_by_text(sub.selftext, 5, 30, 20)
         if(sub.selftext):
-            return self.get_percepcion_by_text(sub.selftext, 5, 30, 20)*0.7 + self.get_percepcion_by_text(sub.title, 5, 30, 20)*0.3
-        else:
-            return self.get_percepcion_by_text(sub.title, 5,30, 20)
+            body_score = self.get_percepcion_by_text(sub.title, 5, 30, 20)
+            return self.split_score(title_score, body_score)
+        return title_score
 
-    def get_percepcion_by_text(self, text: str, word_limit: int, pol_max_score:int, subj_max_score: int) -> float:
+    def get_percepcion_by_text(self, text: str, word_limit: int, pol_limit_score:int, subj_limit_score: int) -> float:
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
         subjectivity = blob.subjectivity
         matches = self.match_factor_dict(text.lower(), 'percepcion_comprension_emocional')
         match_score = matches*(50/word_limit) if matches <= word_limit else 50
-        score = pol*pol_max_score + subjectivity*subj_max_score+match_score
+        score = pol*pol_limit_score + subjectivity*subj_limit_score+match_score
         return score
+
+    # Tolerancia a la frustración
+
+    def get_tolerancia_by_grouped_sub(self, sub: Submission) -> float:
+        title_score = self.get_tolerancia_by_text(sub.title, 8, 20)
+        if(sub.selftext):
+            body_score = self.get_tolerancia_by_text(sub.selftext, 8, 20)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_tolerancia_by_sub(self, sub:Submission) -> float:
+        title_score = self.get_tolerancia_by_text(sub.title, 6, 30)
+        if(sub.selftext):
+            body_score = self.get_tolerancia_by_text(sub.selftext, 6, 30)
+            return self.split_score(title_score, body_score)
+        return title_score
+    
+    def get_tolerancia_by_text(self, text: str, word_limit: int, subj_limit_score: int) -> float:
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subjectivity = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'tolerancia_a_la_frustración')
+        match_score = matches*5 if matches <= word_limit else word_limit*5
+        score = pol*40+subjectivity*subj_limit_score+match_score
+        return score
+
+    # Motivación al logro
+
+    def get_motivacion_by_sub(self, sub: Submission) -> float:
+        title_score = self.get_motivacion_by_text(sub.title)
+        if(sub.selftext):
+            body_score = self.get_motivacion_by_text(sub.selftext)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_motivacion_by_text(self, text: str) -> float:
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subjectivity = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'motivación_de_logro')
+        match_score = matches*5 if matches <= 2 else 10
+        score = pol * 60 + subjectivity * 30 + match_score
+        return score
+
+    # Conciencia crítica
+
+    def get_conciencia_by_grouped_sub(self, sub: Submission) -> float:
+        title_score = self.get_conciencia_by_text(sub.title, 10, 6)
+        if(sub.selftext):
+            body_score = self.get_conciencia_by_text(sub.selftext, 10, 6)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_conciencia_by_sub(self, sub: Submission) -> float:
+        title_score = self.get_conciencia_by_text(sub.title, 20, 4)
+        if(sub.selftext):
+            body_score = self.get_conciencia_by_text(sub.selftext, 20, 4)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_conciencia_by_text(self, text: str, pol_limit_score: int, word_limit: int) -> float:
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subjectivity = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'conciencia_crítica')
+        match_score = matches*5 if matches <= word_limit else word_limit*5
+        score = pol * pol_limit_score + subjectivity * 60 + match_score
+        return score
+
+    # Comprensión Organizativa
+
+    def get_comprension_by_grouped_sub(self, sub: Submission) -> float:
+        title_score = self.get_comprension_by_text(sub.title, 2, 60)
+        if(sub.selftext):
+            body_score = self.get_comprension_by_text(sub.selftext, 2, 60)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_comprension_by_sub(self, sub: Submission) -> float:
+        title_score = self.get_comprension_by_text(sub.title, 4, 50)
+        if(sub.selftext):
+            body_score = self.get_comprension_by_text(sub.selftext, 4, 50)
+            return self.split_score(title_score, body_score)
+        return title_score
+
+    def get_comprension_by_text(self, text: str, word_limit: int, subj_limit_score: int) -> float:
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subjectivity = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'comprensión_organizativa')
+        match_score = matches*5 if matches <= word_limit else 5*word_limit
+        score = pol * 30 + subjectivity*subj_limit_score+match_score
+        return score
+
+    # Desarrollo de las relaciones
+
+    def get_desarrollo_by_grouped_sub(self, sub: Submission) -> float:
+        votes_score = 60 if sub.upvote_ratio>=0.6 else 0
+        blob = TextBlob(sub.title)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        matches = self.match_factor_dict(sub.title, 'desarrollo_de_las_relaciones')
+        match_score = matches*2 if matches <= 5 else 10
+        if(sub.selftext):
+            blob = TextBlob(sub.selftext)
+            pol2 = blob.polarity if blob.polarity >= 0 else 0
+            matches = self.match_factor_dict(sub.selftext, 'desarrollo_de_las_relaciones')
+            match_score2 = matches*2 if matches <= 5 else 10
+            return votes_score + pol*15 + pol2*15 + match_score*0.5 + match_score2*0.5
+        else:
+            return votes_score + pol*30 + match_score
+
+
+    def get_desarrollo_by_sub(self, sub: Submission) -> float:
+        votes_score = 60 if sub.upvote_ratio>=0.6 else 0
+        matches = self.match_factor_dict(sub.title, 'desarrollo_de_las_relaciones')
+        match_score = matches*8 if matches <= 5 else 40
+        if(sub.selftext):
+            matches = self.match_factor_dict(sub.selftext, 'desarrollo_de_las_relaciones')
+            match_score2 = matches*8 if matches <= 5 else 40
+            return votes_score + match_score*0.5 + match_score*0.5
+        else:
+            return votes_score + match_score
+
+    # Influencia
+
+    def get_influencia_by_grouped_sub(self, sub: Submission) -> float:
+        subscribers = sub.subreddit.subscribers
+        subs_score = 60 if subscribers >= 5000 else 0
+        votes_score = 20 if sub.upvote_ratio >= 0.2 else 0
+        matches = self.match_factor_dict(sub.title, 'influencia')
+        match_score = matches*5 if matches <= 4 else 20
+        if(sub.selftext):
+            matches = self.match_factor_dict(sub.selftext, 'influencia')
+            match_score2 = matches*5 if matches <= 4 else 20
+            return subs_score + votes_score + match_score*0.5 + match_score2*0.5
+        return subs_score + votes_score + match_score
+    
+    def get_influencia_by_sub(self, sub: Submission) -> float:
+        votes_score = sub.upvote_ratio * 70
+        blob = TextBlob(sub.title)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        matches = self.match_factor_dict(sub.title, 'influencia')
+        match_score = matches*5 if matches <= 2 else 10
+        if(sub.selftext):
+            blob = TextBlob(sub.selftext)
+            pol2 = blob.polarity if blob.polarity >= 0 else 0
+            matches = self.match_factor_dict(sub.selftext, 'influencia')
+            match_score2 = matches*5 if matches <= 2 else 10
+            return votes_score + pol*10 + pol2 * 10 + match_score * 0.5 + match_score2 * 0.5
+        return votes_score + pol*20 + match_score
+    
+
+
+    # Liderazgo
+
+    def get_liderazgo_by_grouped_sub(self, sub: Submission) -> float:
+        subscribers = sub.subreddit.subscribers
+        subs_score = 20 if subscribers >= 10000 else 0
+        matches = self.match_factor_dict(sub.title, 'liderazgo')
+        match_score = matches*5 if matches <= 4 else 20
+        if(sub.selftext):
+            matches = self.match_factor_dict(sub.selftext, 'liderazgo')
+            match_score2 = matches*5 if matches <= 4 else 20
+            return subs_score + sub.upvote_ratio * 60 + match_score * 0.5 + match_score2 * 0.5
+        return subs_score + sub.upvote_ratio * 60 + match_score
+    
+    def get_liderazgo_by_sub(self, sub: Submission) -> float:
+        is_gold = 20 if sub.author.is_gold else 0
+        votes_score = sub.upvote_ratio * 30
+        blob = TextBlob(sub.title)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        matches = self.match_factor_dict(sub.title, 'liderazgo')
+        match_score = matches*5 if matches <= 4 else 20
+        if(sub.selftext):
+            blob = TextBlob(sub.selftext)
+            pol2 = blob.polarity if blob.polarity >= 0 else 0
+            matches = self.match_factor_dict(sub.selftext, 'liderazgo')
+            match_score2 = matches*5 if matches <= 4 else 20
+            return is_gold + votes_score + pol*15 + pol2 * 15 + match_score * 0.5 + match_score2 * 0.5
+        return is_gold + votes_score + pol*30 + match_score
+
+    def split_score(self, title_score: float, body_score: float) -> float:
+        return title_score*0.7+body_score*0.3
 
     def switch_factor(self, sublist: Union[Submission, List[Submission]], factor: str) -> float:
         factor_method = f"get_{factor}_by_sub"    
@@ -160,7 +383,6 @@ class RedditAnalyzer(BaseAnalyzer):
             return method(sublist)
         resultset = [method(sub) for sub in sublist]
         score = mean(resultset)
-        print(factor_method)
         return score
     
     def switch_factor_grouped(self, sublist: Union[Submission, List[Submission]], factor: str) -> float:
@@ -170,7 +392,6 @@ class RedditAnalyzer(BaseAnalyzer):
             return method(sublist)
         resultset = [method(sub) for sub in sublist]
         score = mean(resultset)
-        print(factor_method)
         return score
 
 class RedditWrapper(BaseAPIWrapper):

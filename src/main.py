@@ -7,8 +7,8 @@ from flask_cors import CORS
 from models.base import Analysis
 from models.reddit import RedditWrapper, RedditAnalyzer, Submission, Redditor
 from models.twitter import TwitterData, TwitterStreamer, TwitterClient, TweetAnalyzer
-from tweepy import OAuthHandler
 from typing import List, IO
+from tweepy import OAuthHandler
 import tweepy
 import praw
 from translate import Translator
