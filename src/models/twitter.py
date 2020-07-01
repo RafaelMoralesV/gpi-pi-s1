@@ -1,8 +1,10 @@
+from models.base import Analysis, BaseAnalyzer, BaseAPIWrapper
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy import API
 from tweepy import Cursor
+from textblob import TextBlob
 
 #import numpy as np
 #import pandas as pd
@@ -32,9 +34,18 @@ class TwitterClient():
         }
         return hashtag_data
 
+    def get_hashtag_tweets(self, twitter_hashtag):
+        tweets_hashtag = []
+        for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(10):
+            tweets_hashtag.append({
+                "text": tweet.text
+            })
+        return tweets_hashtag
+
+
     def get_tweet(self, name):#tweets user
         tweets = []
-        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
+        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(20):
             tweets.append({
             "id": tweet.id,
             "text": tweet.text
@@ -45,7 +56,15 @@ class TwitterClient():
             "n_entries": len(tweets)
         }
         return tweet_data
-        
+
+    def get_text_tweet(self, name):
+        tweets = []
+        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(20):
+            tweets.append({
+                "text": tweet.text
+            })
+        return tweets
+
     # timeline de los tweets
     def get_user_timeline_tweets(self, num_tweets):
         tweets = []
@@ -96,9 +115,62 @@ class TwitterData(StreamListener):
         print(status)
 
 
+class TwitterAnalyzer(BaseAnalyzer):
+
+
+    #Autoconciencia emocional
+
+    def get_autoconciencia_by_group(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_autoconciencia_by_text(str(tweet))
+        promedio = promedio / len(tweets)
+        return promedio
+
+    def get_autoconciencia_by_text(self, text: str):
+        blob = TextBlob(text)
+        subj = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'autoconciencia_emocional')
+        match_score = matches*6 if matches <= 5 else 30
+        score = subj*70 + match_score
+        return score 
+
+
+    # Autoestima
+
+    def get_autoestima_by_group(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_autoestima_by_text(str(tweet))
+        promedio = promedio / len(tweets)
+        return promedio
+
+    def get_autoestima_by_text(self, text: str):
+        blob = TextBlob(text)
+        subj = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'autoestima')
+        match_score = matches * 6 if matches <= 10 else 60
+        score = subj*40 + match_score
+        return score
+
+    pass
+
+#class TwitterWrapper(BaseAPIWrapper):
+ #   analyzer: TwitterAnalyzer
+ #   twitter_client: TwitterClient
+ #   def __init__(self, client : TwitterClient ,analyzer: TwitterAnalyzer):
+  #      self.analyzer = analyzer
+  #      self.reddit = reddit
+    
+
+    
+
+
+
+"""
 class TweetAnalyzer():
     pass
-"""     def tweets_to_data_frame(self, tweets):
+     def tweets_to_data_frame(self, tweets):
         df = pd.DataFrame(data=[tweet.text for tweet in tweets], columns=['Tweets'])
 
         df['id'] = np.array([tweet.id for tweet in tweets])
