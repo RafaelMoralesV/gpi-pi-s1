@@ -6,7 +6,7 @@ from werkzeug.datastructures import FileStorage
 from flask_cors import CORS
 from models.base import Analysis
 from models.reddit import RedditWrapper, RedditAnalyzer, Submission, Redditor
-from models.twitter import TwitterData, TwitterStreamer, TwitterClient, TweetAnalyzer
+from models.twitter import TwitterData, TwitterStreamer, TwitterClient, TwitterAnalyzer
 from tweepy import OAuthHandler
 from typing import List, IO
 import tweepy
@@ -19,6 +19,7 @@ CORS(app)
 dictionary = get_dictionary('./data/diccionario.json')
 reddit = praw.Reddit(client_id="AUs7RM1sxg8Itg", user_agent="my user agent", client_secret="NVkkQtixo7aMWnDjGqi8fCmUP_g")
 rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
+
 
 @app.route('/reddit/user', methods=["GET", "POST"])
 def get_reddit_users():
@@ -126,26 +127,38 @@ def get_twitter_user(name: str):
 def get_twitter_hashtag(hashtag: str):
     twitter_client = TwitterClient()
     api = twitter_client.get_hashtag(hashtag)
-    return jsonify(api)
+    hashtag_tweets = twitter_client.get_hashtag_tweets(hashtag)
+    twitter_analyzer = TwitterAnalyzer(dictionary)
+    autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(hashtag_tweets)
+    autoestima = twitter_analyzer.get_autoestima_by_group(hashtag_tweets)
+    return jsonify({"text_tweets":hashtag_tweets,
+     "autoconciencia":autoconciencia_emocional,
+     "autoestima": autoestima})
     #return jsonify({"hashtag": api._json})
 
 @app.route('/twitter/tweets/user/<name>')
 def get_tweets(name: str):
     twitter_client = TwitterClient()
     api = twitter_client.get_tweet(name)
-    return jsonify(api)
+    text_tweets = twitter_client.get_text_tweet(name)
+    twitter_analyzer = TwitterAnalyzer(dictionary)
+    autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
+    autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
+    return jsonify({"text_tweets":text_tweets,
+     "autoconciencia":autoconciencia_emocional,
+     "autoestima": autoestima})
 
 @app.route('/twitter')
 def get_tweet():
     twitter_client = TwitterClient()
     api = twitter_client.get_twitter_client_api()
-    user = api.get_user("MagnusCarlsen")
+    user = api.get_user("2LarryJohnson7")
     tweets = api.user_timeline(user.id)
     tweet : tweepy.models.Status = tweets[0]
     #tws = [tweet for tweet in tweets]
     #for tw in tws:
     #    print(tw.text)
-    #replies = tweepy.Cursor(api.search, q=f"to:{'MagnusCarlsen'}", since_id=tws[2].id, tweet_mode="extended").items()
+    #replies = tweepy.Cursor(api.search, q=f"to:{'2LarryJohnson7'}", since_id=tws[2].id, tweet_mode="extended").items()
     #for reply in replies:
     #    pass
     return jsonify({"msg" : tweet._json})
