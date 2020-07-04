@@ -208,7 +208,6 @@ class TwitterAnalyzer(BaseAnalyzer):
         matches = self.match_factor_dict(text.lower(), 'conciencia_critica')
         match_score = matches*3 if matches <= 10 else 30
         score = pol*20 + subj*50 + match_score
-        print(pol,' - ',subj,' - ',matches,' - ',match_score)
         return score
 
 
