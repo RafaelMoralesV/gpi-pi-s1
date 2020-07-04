@@ -131,9 +131,16 @@ def get_twitter_hashtag(hashtag: str):
     twitter_analyzer = TwitterAnalyzer(dictionary)
     autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(hashtag_tweets)
     autoestima = twitter_analyzer.get_autoestima_by_group(hashtag_tweets)
+    comprension_organizativa = twitter_analyzer.get_comprension_by_group(hashtag_tweets)
+    comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(hashtag_tweets)
+    conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(hashtag_tweets)
     return jsonify({"text_tweets":hashtag_tweets,
-     "autoconciencia":autoconciencia_emocional,
-     "autoestima": autoestima})
+        "autoconciencia":autoconciencia_emocional,
+        "autoestima": autoestima,
+        "Comprensión Organizativa": comprension_organizativa,
+        "Comunicación Asertiva": comunicacion_asertiva,
+        "Conciencia Crítica": conciencia_critica
+     })
     #return jsonify({"hashtag": api._json})
 
 @app.route('/twitter/tweets/user/<name>')
@@ -144,9 +151,16 @@ def get_tweets(name: str):
     twitter_analyzer = TwitterAnalyzer(dictionary)
     autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
     autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
+    comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
+    comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(text_tweets)
+    conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(text_tweets)
     return jsonify({"text_tweets":text_tweets,
-     "autoconciencia":autoconciencia_emocional,
-     "autoestima": autoestima})
+        "autoconciencia":autoconciencia_emocional,
+        "autoestima": autoestima,
+        "Comprensión Organizativa": comprension_organizativa,
+        "Comunicación Asertiva": comunicacion_asertiva,
+        "Conciencia Crítica": conciencia_critica
+    })
 
 @app.route('/twitter')
 def get_tweet():

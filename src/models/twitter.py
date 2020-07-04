@@ -153,6 +153,66 @@ class TwitterAnalyzer(BaseAnalyzer):
         score = subj*40 + match_score
         return score
 
+
+    # Comprensión Organizativa
+
+    def get_comprension_by_group(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_comprension_by_text(str(tweet))
+            promedio = promedio / len(tweets)
+        return promedio
+    
+    def get_comprension_by_text(self, text: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subj = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'comprension_organizativa')
+        match_score = matches*2 if matches <= 10 else 20
+        score = pol*60 + subj*20 + match_score
+        return score
+
+    
+    # Comunicación Asertiva
+
+    def get_comunicacion_asertiva_by_group(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_comunicacion_asertiva_by_text(str(tweet))
+            promedio = promedio / len(tweets)
+        return promedio
+    
+    def get_comunicacion_asertiva_by_text(self, text: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subj = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'comunicacion_asertiva')
+        match_score = matches*3 if matches <= 10 else 30
+        score = pol*20 + subj*50 + match_score
+        return score
+
+
+    # Conciencia Crítica
+
+    def get_conciencia_critica_by_group(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_conciencia_critica_by_text(str(tweet))
+            promedio = promedio / len(tweets)
+        return promedio
+    
+    def get_conciencia_critica_by_text(self, text: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subj = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'conciencia_critica')
+        match_score = matches*3 if matches <= 10 else 30
+        score = pol*20 + subj*50 + match_score
+        print(pol,' - ',subj,' - ',matches,' - ',match_score)
+        return score
+
+
+
     pass
 
 #class TwitterWrapper(BaseAPIWrapper):
