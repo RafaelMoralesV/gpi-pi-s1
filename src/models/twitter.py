@@ -1,3 +1,4 @@
+import io
 from models.base import Analysis, BaseAnalyzer, BaseAPIWrapper
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -5,9 +6,7 @@ from tweepy import Stream
 from tweepy import API
 from tweepy import Cursor
 from textblob import TextBlob
-
-#import numpy as np
-#import pandas as pd
+from googletrans import Translator
 
 class TwitterClient():
 
@@ -44,11 +43,11 @@ class TwitterClient():
 
     def get_hashtag_tweets_to_analyze(self, twitter_hashtag):
         tweets = []        
+        translator = Translator()
         for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(50):
-            if(TextBlob(tweet.text).subjectivity != 0 and TextBlob(tweet.text).sentiment.polarity != 0):
-                tweets.append({
-                "text": tweet.text
-            })
+        	traduce = translator.translate(tweet.text,dest='en')
+        	if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
+        		tweets.append(traduce.text)
         return tweets
 
 
@@ -76,9 +75,11 @@ class TwitterClient():
     
     def get_tweets_to_analyze(self, name):
         tweets = []        
+        translator = Translator()
         for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(50):
-            if(TextBlob(tweet.text).subjectivity != 0 and TextBlob(tweet.text).sentiment.polarity != 0):
-                tweets.append(tweet.text)
+        	traduce = translator.translate(tweet.text,dest='en')
+        	if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
+        		tweets.append(traduce.text)
         return tweets
 
     # timeline de los tweets
@@ -145,6 +146,9 @@ class TwitterAnalyzer(BaseAnalyzer):
 
     def get_autoconciencia_by_text(self, text: str):
         blob = TextBlob(text)
+        #translator = Translator()
+        #blob = translator.translate(text,dest='en')
+        #blob = TextBlob(blob.text)
         subj = blob.subjectivity
         matches = self.match_factor_dict(text.lower(), 'autoconciencia_emocional')
         match_score = matches*6 if matches <= 5 else 30
