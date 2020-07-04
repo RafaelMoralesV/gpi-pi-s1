@@ -126,41 +126,54 @@ def get_twitter_user(name: str):
 @app.route('/twitter/hashtag/<hashtag>')
 def get_twitter_hashtag(hashtag: str):
     twitter_client = TwitterClient()
-    api = twitter_client.get_hashtag(hashtag)
-    hashtag_tweets = twitter_client.get_hashtag_tweets(hashtag)
+
+    hashtag_tweets = twitter_client.get_hashtag_tweets_to_analyze(hashtag)
     twitter_analyzer = TwitterAnalyzer(dictionary)
+
     autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(hashtag_tweets)
     autoestima = twitter_analyzer.get_autoestima_by_group(hashtag_tweets)
     comprension_organizativa = twitter_analyzer.get_comprension_by_group(hashtag_tweets)
     comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(hashtag_tweets)
     conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(hashtag_tweets)
-    return jsonify({"text_tweets":hashtag_tweets,
-        "autoconciencia":autoconciencia_emocional,
-        "autoestima": autoestima,
+    motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(hashtag_tweets, 'hashtag')
+    tolerancia = twitter_analyzer.get_tolerancia_by_group(hashtag_tweets, 'hashtag')
+    
+    return jsonify({"Tweets":hashtag_tweets,
+        "Autoconciencia":autoconciencia_emocional,
+        "Autoestima": autoestima,
         "Comprensión Organizativa": comprension_organizativa,
         "Comunicación Asertiva": comunicacion_asertiva,
-        "Conciencia Crítica": conciencia_critica
+        "Conciencia Crítica": conciencia_critica,
+        "Motivación de logro": motivacion_de_logro,
+        "Tolerancia": tolerancia
      })
     #return jsonify({"hashtag": api._json})
 
 @app.route('/twitter/tweets/user/<name>')
 def get_tweets(name: str):
     twitter_client = TwitterClient()
-    api = twitter_client.get_tweet(name)
-    text_tweets = twitter_client.get_text_tweet(name)
+    text_tweets = twitter_client.get_tweets_to_analyze(name)
     twitter_analyzer = TwitterAnalyzer(dictionary)
+
     autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
     autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
     comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
     comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(text_tweets)
     conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(text_tweets)
-    return jsonify({"text_tweets":text_tweets,
-        "autoconciencia":autoconciencia_emocional,
-        "autoestima": autoestima,
+    motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(text_tweets,'usuario')
+    tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
+    desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
+    
+    return jsonify({"Tweets":text_tweets,
+        "Autoconciencia":autoconciencia_emocional,
+        "Autoestima": autoestima,
         "Comprensión Organizativa": comprension_organizativa,
         "Comunicación Asertiva": comunicacion_asertiva,
-        "Conciencia Crítica": conciencia_critica
-    })
+        "Conciencia Crítica": conciencia_critica,
+        "Motivación de logro": motivacion_de_logro,
+        "Tolerancia": tolerancia,
+        "Desarrollar y estimular a los demas": desarrollar_y_estimular_a_los_demas
+     })
 
 @app.route('/twitter')
 def get_tweet():

@@ -42,10 +42,19 @@ class TwitterClient():
             })
         return tweets_hashtag
 
+    def get_hashtag_tweets_to_analyze(self, twitter_hashtag):
+        tweets = []        
+        for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(50):
+            if(TextBlob(tweet.text).subjectivity != 0 and TextBlob(tweet.text).sentiment.polarity != 0):
+                tweets.append({
+                "text": tweet.text
+            })
+        return tweets
+
 
     def get_tweet(self, name):#tweets user
         tweets = []
-        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(20):
+        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
             tweets.append({
             "id": tweet.id,
             "text": tweet.text
@@ -59,10 +68,17 @@ class TwitterClient():
 
     def get_text_tweet(self, name):
         tweets = []
-        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(20):
+        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
             tweets.append({
                 "text": tweet.text
             })
+        return tweets
+    
+    def get_tweets_to_analyze(self, name):
+        tweets = []        
+        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(50):
+            if(TextBlob(tweet.text).subjectivity != 0 and TextBlob(tweet.text).sentiment.polarity != 0):
+                tweets.append(tweet.text)
         return tweets
 
     # timeline de los tweets
@@ -160,8 +176,7 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_comprension_by_text(str(tweet))
-            promedio = promedio / len(tweets)
-        return promedio
+        return promedio/len(tweets)
     
     def get_comprension_by_text(self, text: str):
         blob = TextBlob(text)
@@ -179,8 +194,7 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_comunicacion_asertiva_by_text(str(tweet))
-            promedio = promedio / len(tweets)
-        return promedio
+        return promedio/len(tweets)
     
     def get_comunicacion_asertiva_by_text(self, text: str):
         blob = TextBlob(text)
@@ -198,19 +212,80 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_conciencia_critica_by_text(str(tweet))
-            promedio = promedio / len(tweets)
-        return promedio
+        return promedio/len(tweets)
     
     def get_conciencia_critica_by_text(self, text: str):
         blob = TextBlob(text)
-        pol = blob.polarity if blob.polarity >= 0 else 0
-        subj = blob.subjectivity
+        pol = blob.sentiment.polarity if blob.sentiment.polarity >= 0 else 0
+        subj = blob.sentiment.subjectivity
         matches = self.match_factor_dict(text.lower(), 'conciencia_critica')
         match_score = matches*3 if matches <= 10 else 30
         score = pol*20 + subj*50 + match_score
+        #print("CCRITICA  Pol: ",pol," Subj: ",subj," Match: ",match_score, "score", score)
+        return score
+    
+    #Motivacion de logro
+
+    def get_motivacion_by_group(self, tweets: list, tipo: str):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_motivacion_by_text(str(tweet), tipo)
+        promedio = promedio / len(tweets)
+        return promedio
+
+    def get_motivacion_by_text(self,text:str, tipo:str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subjectivity = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'motivacion_de_logro')
+        if(tipo == 'usuario'):
+            match_score = 0.5 if matches >=5 else matches*0.1
+            score = (pol * 0.4 + subjectivity * 0.1 + match_score)*100 # porcentajes distintos en el pdf(?)
+        elif(tipo == 'hashtag'):
+            match_score = 0.5 if matches >=5 else matches*0.1
+            score = (pol * 0.3 + subjectivity * 0.2 + match_score)*100
+        return score
+  
+
+    #Tolerancia a la frustracion
+    
+    def get_tolerancia_by_text(self, text: str, tipo: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >=0 else 0
+        subjectivity = blob.subjectivity
+        matches = self.match_factor_dict(text.lower(), 'tolerancia_a_la_frustracion')
+        if(tipo == 'usuario'):
+            match_score = 0.4 if matches >= 5 else matches * 0.08
+            score = (pol*0.4 + subjectivity *0.2 + match_score)*100
+        elif(tipo == 'hashtag'):
+            match_score = 0.2 if matches >= 5 else matches * 0.04
+            score = (pol*0.5 + subjectivity *0.3 + match_score)*100
+        return score
+    
+    def get_tolerancia_by_group(self, tweets: list, tipo: str):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_tolerancia_by_text(str(tweet), tipo)
+        promedio = promedio / len(tweets)
+        return promedio 
+    
+
+   
+    # Desarrollar y estimular a los demas 
+    def get_desarrollar_by_text_user(self, text: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >=0 else 0
+        matches = self.match_factor_dict(text.lower(), 'desarrollar_y_estimular_a_los_demas')
+        match_score = 0.1 if matches >= 5 else matches * 0.02
+        score = (pol*0.9 + match_score)*100
         return score
 
-
+    def get_desarrollar_by_group_user(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_desarrollar_by_text_user(str(tweet))
+        promedio = promedio / len(tweets)
+        return promedio 
 
     pass
 
