@@ -102,27 +102,121 @@ def translate_text():
 def download():
     return send_file("../data/template.xlsx", as_attachment=True)
 
+@app.route('/twitter/user', methods=["GET", "POST"])
+def get_twitter_users():
+    if request.method == "GET":
+        names = ["ryanmdahl", "MagnusCarlsen", "denniskuo"]
+    else:
+        if 'plantilla' not in request.files:
+            return Response("", status=400)
+        else:
+            data: FileStorage = request.files["plantilla"]
+            sheet = str_to_sheet(data.stream.read())
+            names = sheet["twitter_users"]
+    twitter_client = TwitterClient()
+    api = twitter_client.get_twitter_client_api()
+    users = []
+    entries = 0
+    for name in names:
+        user: tweepy.models.User = api.get_user(name)._json
+        tweets: List[tweepy.models.Status] = api.user_timeline(user["id"])
+        tws = []
+        for tweet in tweets:
+            tweet = tweet._json
+            tw = {}
+            tw["id"] = tweet["id"]
+            tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
+            tw["retweet_count"] = tweet["retweet_count"]
+            tw["text"] = tweet["text"]
+            tws.append(tw)
+        entries += len(tws)
+        fmt_user = {
+            "id" : user["id"],
+            "name": user["name"],
+            "description": user["description"],
+            "location" : user["location"],
+            "url" : user["url"],
+            "verified" : user["verified"],
+            "tweets_count": user["statuses_count"],
+            "tweets": tws
+        }
+        users.append(fmt_user)
+    return jsonify({"users" : users, "n_entries": entries})
+    
+
 @app.route('/twitter/user/<name>')
 def get_twitter_user(name: str):
     twitter_client = TwitterClient()
     api = twitter_client.get_twitter_client_api()
-    user = api.get_user(name)
-    return jsonify({"user": user._json})
+    user: tweepy.models.User = api.get_user(name)._json
+    tweets: List[tweepy.models.Status] = api.user_timeline(user["id"])
+    tws = []
+    for tweet in tweets:
+        tweet = tweet._json
+        tw = {}
+        tw["id"] = tweet["id"]
+        tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
+        tw["retweet_count"] = tweet["retweet_count"]
+        tw["text"] = tweet["text"]
+        tws.append(tw)
+    fmt_user = {
+        "id" : user["id"],
+        "name": user["name"],
+        "description": user["description"],
+        "location" : user["location"],
+        "url" : user["url"],
+        "verified" : user["verified"],
+        "tweets_count": user["statuses_count"],
+        "tweets": tws
+    }
+    return jsonify({"user": fmt_user, "n_entries": len(tws)})
 
-@app.route('/twitter')
-def get_tweet():
+@app.route('/twitter/hashtags/<hashtag>')
+def get_hashtag(hashtag: str):
     twitter_client = TwitterClient()
     api = twitter_client.get_twitter_client_api()
-    user = api.get_user("MagnusCarlsen")
-    tweets = api.user_timeline(user.id)
-    tweet : tweepy.models.Status = tweets[0]
-    #tws = [tweet for tweet in tweets]
-    #for tw in tws:
-    #    print(tw.text)
-    #replies = tweepy.Cursor(api.search, q=f"to:{'MagnusCarlsen'}", since_id=tws[2].id, tweet_mode="extended").items()
-    #for reply in replies:
-    #    pass
-    return jsonify({"msg" : tweet._json})
+    tweets = tweepy.Cursor(api.search, q="#"+hashtag, rpp=10).items(limit=15)
+    tws = []
+    for tweet in tweets:
+        tweet = tweet._json
+        tw = {}
+        tw["id"] = tweet["id"]
+        tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
+        tw["retweet_count"] = tweet["retweet_count"]
+        tw["text"] = tweet["text"]
+        tws.append(tw)
+    return jsonify({"tws" : tws, "n_entries" : len(tws)})
+
+@app.route('/twitter/hashtags', methods=["GET", "POST"])
+def get_hashtags():
+    hashtag_names: List[str] = []
+    if request.method == "GET":
+        hashtag_names = ["#cats", "#dogs"]
+    else:
+        if 'plantilla' not in request.files:
+            return Response("", status=400)
+        else:
+            data: FileStorage = request.files["plantilla"]
+            sheet = str_to_sheet(data.stream.read())
+            hashtag_names = sheet["hashtags"]
+    twitter_client = TwitterClient()
+    api = twitter_client.get_twitter_client_api()
+    hashtags = []
+    entries = 0
+    for hashtag_name in hashtag_names:
+        tweets = tweepy.Cursor(api.search, q=hashtag_name, rpp=10).items(limit=10)
+        tws = []
+        for tweet in tweets:
+            tweet = tweet._json
+            tw = {}
+            tw["id"] = tweet["id"]
+            tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
+            tw["retweet_count"] = tweet["retweet_count"]
+            tw["text"] = tweet["text"]
+            tws.append(tw)
+        entries += len(tws)
+        hashtags.append({"name" : hashtag_name, "tweets" : tws})
+    return jsonify({"hashtags" : hashtags, "n_entries": entries})
 
 if __name__ == "__main__":
     app.run("127.0.0.1", "5000", debug=True)
