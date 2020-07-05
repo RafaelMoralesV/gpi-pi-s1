@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from dictionary import get_dictionary
 from sheet import str_to_sheet
 from flask import Flask, request, jsonify, Response, send_file
@@ -13,11 +14,13 @@ import tweepy
 import praw
 from translate import Translator
 
+load_dotenv()
+
 app = Flask(__name__)
 translator= Translator(to_lang="Spanish")
 CORS(app)
-dictionary = get_dictionary('./data/diccionario.json')
-reddit = praw.Reddit(client_id="AUs7RM1sxg8Itg", user_agent="my user agent", client_secret="NVkkQtixo7aMWnDjGqi8fCmUP_g")
+dictionary = get_dictionary(os.getenv("DICTIONARY_PATH"))
+reddit = praw.Reddit(client_id=os.getenv("REDDIT_CLIENT_ID"), user_agent="my user agent", client_secret=os.getenv("REDDIT_CLIENT_SECRET"))
 rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 
 @app.route('/reddit/user', methods=["GET", "POST"])
@@ -138,7 +141,8 @@ def get_twitter_users():
             "url" : user["url"],
             "verified" : user["verified"],
             "tweets_count": user["statuses_count"],
-            "tweets": tws
+            "tweets": tws,
+            "analysis": Analysis().toRandomDict()
         }
         users.append(fmt_user)
     return jsonify({"users" : users, "n_entries": entries})
@@ -167,7 +171,8 @@ def get_twitter_user(name: str):
         "url" : user["url"],
         "verified" : user["verified"],
         "tweets_count": user["statuses_count"],
-        "tweets": tws
+        "tweets": tws,
+        "analysis": Analysis().toRandomDict()
     }
     return jsonify({"user": fmt_user, "n_entries": len(tws)})
 
@@ -185,7 +190,12 @@ def get_hashtag(hashtag: str):
         tw["retweet_count"] = tweet["retweet_count"]
         tw["text"] = tweet["text"]
         tws.append(tw)
-    return jsonify({"tws" : tws, "n_entries" : len(tws)})
+    fmt_hashtag = {
+        "name": "#" + hashtag,
+        "tweets" : tws,
+        "analysis" : Analysis().toRandomDict()
+    }
+    return jsonify({"hashtag" : fmt_hashtag, "n_entries" : len(tws)})
 
 @app.route('/twitter/hashtags', methods=["GET", "POST"])
 def get_hashtags():
@@ -215,8 +225,8 @@ def get_hashtags():
             tw["text"] = tweet["text"]
             tws.append(tw)
         entries += len(tws)
-        hashtags.append({"name" : hashtag_name, "tweets" : tws})
+        hashtags.append({"name" : hashtag_name, "tweets" : tws, "analysis": Analysis().toRandomDict()})
     return jsonify({"hashtags" : hashtags, "n_entries": entries})
 
 if __name__ == "__main__":
-    app.run("127.0.0.1", "5000", debug=True)
+    app.run("127.0.0.1", os.getenv("PORT"), debug=bool(os.getenv("DEBUG")))

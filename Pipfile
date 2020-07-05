@@ -16,6 +16,7 @@ translate = "*"
 gunicorn = "*"
 pandas = "*"
 xlrd = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.6"
