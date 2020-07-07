@@ -19,6 +19,7 @@ class TwitterClient():
     def get_twitter_client_api(self):
         return self.twitter_client
 
+    '''
     def get_hashtag(self, twitter_hashtag):
         hashtags = []
         for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(10):
@@ -40,6 +41,7 @@ class TwitterClient():
                 "text": tweet.text
             })
         return tweets_hashtag
+    '''
 
     def get_hashtag_tweets_to_analyze(self, twitter_hashtag):
         tweets = []        
@@ -47,10 +49,15 @@ class TwitterClient():
         for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(50):
         	traduce = translator.translate(tweet.text,dest='en')
         	if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
-        		tweets.append(traduce.text)
+        		tweets.append({
+        			"id" : tweet.id,
+        			"retweeted" : tweet.retweeted,
+        			"retweet_count " : tweet.retweet_count,
+        			"text" : traduce.text
+        		})
         return tweets
 
-
+    '''    
     def get_tweet(self, name):#tweets user
         tweets = []
         for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
@@ -64,7 +71,7 @@ class TwitterClient():
             "n_entries": len(tweets)
         }
         return tweet_data
-
+    
     def get_text_tweet(self, name):
         tweets = []
         for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
@@ -72,6 +79,7 @@ class TwitterClient():
                 "text": tweet.text
             })
         return tweets
+    '''
     
     def get_tweets_to_analyze(self, name):
         tweets = []        
@@ -79,17 +87,23 @@ class TwitterClient():
         for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(50):
         	traduce = translator.translate(tweet.text,dest='en')
         	if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
-        		tweets.append(traduce.text)
+        		tweets.append({
+        			"id" : tweet.id,
+        			"retweeted" : tweet.retweeted,
+        			"retweet_count " : tweet.retweet_count,
+        			"text" : traduce.text
+        		})
         return tweets
 
     # timeline de los tweets
+    '''
     def get_user_timeline_tweets(self, num_tweets):
         tweets = []
         for tweet in Cursor(self.twitter_client.user_timeline, id=self.twitter_user).items(num_tweets):
             tweets.append(tweet)
             print(tweets)
         return tweets
-
+	'''
 
 class TwitterAuthenticator():
     # autenticador con las credenciales
