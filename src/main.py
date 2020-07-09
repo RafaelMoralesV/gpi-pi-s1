@@ -147,7 +147,6 @@ def get_twitter_users():
         users.append(fmt_user)
     return jsonify({"users" : users, "n_entries": entries})
     
-
 @app.route('/twitter/user/<name>')
 def get_twitter_user(name: str):
     twitter_client = TwitterClient()
