@@ -25,11 +25,9 @@ class Analysis:
     violencia: float
 
     __factors = [
-        "asertividad", "autoconciencia_emocional", 
-        "autocontrol_emocional", "autoestima", 
-        "colaboracion_cooperacion", "comprension_organizativa",
-        "comunicacion_asertiva", "conciencia_critica",
-        "desarrollar_estimular_otros", "desarrollo_relaciones",
+        "asertividad", "autoconciencia_emocional", "autoestima", 
+        "colaboracion_cooperacion", "comprension_organizativa", "conciencia_critica",
+        "desarrollo_relaciones",
         "empatia", "influencia", "liderazgo", "manejo_conflictos",
         "motivacion_logro", "optimismo", "percepcion_comprension_emocional",
         "relacion_social", "tolerancia_frustracion", "violencia"

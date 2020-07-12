@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from dictionary import get_dictionary
 from sheet import str_to_sheet
@@ -23,11 +24,23 @@ dictionary = get_dictionary(os.getenv("DICTIONARY_PATH"))
 reddit = praw.Reddit(client_id=os.getenv("REDDIT_CLIENT_ID"), user_agent="my user agent", client_secret=os.getenv("REDDIT_CLIENT_SECRET"))
 rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 
+default_data = {
+    "reddit" :{
+        "users" : {},
+        "subreddits": {}
+    }
+}
+
+with open('./data/reddit.json', "r") as rfile:
+    obj = json.load(rfile)
+    default_data["reddit"]["users"] = obj["users"]
+    default_data["reddit"]["subreddits"] = obj["subreddits"]
+
 @app.route('/reddit/user', methods=["GET", "POST"])
 def get_reddit_users():
     names: List[str] = []
     if request.method == "GET":
-        names = ["joeyisgoingto", "antikarma98", "Frustration", "Ginger_Lupus", "BreakfastforDinner"]
+        return jsonify(default_data["reddit"]["users"])
     else:
         if 'plantilla' not in request.files:
             return Response("", status=400)
@@ -57,7 +70,7 @@ def get_reddit_user(id: str):
 def get_subreddits():
     names : List[str] = []
     if request.method == 'GET':
-        names = ["golang", "Fitness", "lectures", "videogames", "politics", "Paranormal"]
+        return jsonify(default_data["reddit"]["subreddits"])
     else:
         if 'plantilla' not in request.files:
             return Response("", status=400)
@@ -122,6 +135,7 @@ def get_twitter_users():
     entries = 0
     for name in names:
         user: tweepy.models.User = api.get_user(name)._json
+        print(user)
         tweets: List[tweepy.models.Status] = api.user_timeline(user["id"])
         tws = []
         for tweet in tweets:
