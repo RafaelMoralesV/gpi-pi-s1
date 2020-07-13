@@ -163,7 +163,8 @@ def get_tweets(name: str):
     motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(text_tweets,'usuario')
     tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
     desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
-    
+    empatia = twitter_analyzer.get_empatia_by_group_user(text_tweets)
+    #liderazgo = twitter_analyzer.get_liderazgo_by_group_user()
     return jsonify({"Tweets":text_tweets,
         "Autoconciencia":autoconciencia_emocional,
         "Autoestima": autoestima,
@@ -172,7 +173,9 @@ def get_tweets(name: str):
         "Conciencia Crítica": conciencia_critica,
         "Motivación de logro": motivacion_de_logro,
         "Tolerancia": tolerancia,
-        "Desarrollar y estimular a los demas": desarrollar_y_estimular_a_los_demas
+        "Desarrollar y estimular a los demas": desarrollar_y_estimular_a_los_demas,
+        "Empatia": empatia
+        #"Liderazgo": liderazgo
      })
 
 @app.route('/twitter')
