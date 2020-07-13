@@ -46,16 +46,19 @@ class TwitterClient():
     def get_hashtag_tweets_to_analyze(self, twitter_hashtag):
         tweets = []        
         translator = Translator()
-        for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(50):
+        for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(5):
         	traduce = translator.translate(tweet.text,dest='en')
         	if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
         		tweets.append({
         			"id" : tweet.id,
         			"retweeted" : tweet.retweeted,
         			"retweet_count " : tweet.retweet_count,
-        			"text" : traduce.text
+        			"text" : traduce.text,
+                    "likes" : tweet.favorite_count
         		})
+        
         return tweets
+
 
     '''    
     def get_tweet(self, name):#tweets user
@@ -91,7 +94,8 @@ class TwitterClient():
         			"id" : tweet.id,
         			"retweeted" : tweet.retweeted,
         			"retweet_count " : tweet.retweet_count,
-        			"text" : traduce.text
+        			"text" : traduce.text,
+                    "likes" : tweet.favorite_count
         		})
         return tweets
 
@@ -154,11 +158,11 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_autoconciencia_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_autoconciencia_by_text(str(tweet))
+            promedio += self.get_autoconciencia_by_text(str(tweet["text"]),int(tweet["likes"]))
         promedio = promedio / len(tweets)
         return promedio
 
-    def get_autoconciencia_by_text(self, text: str):
+    def get_autoconciencia_by_text(self, text: str, likes: int):
         blob = TextBlob(text)
         #translator = Translator()
         #blob = translator.translate(text,dest='en')
@@ -175,7 +179,7 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_autoestima_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_autoestima_by_text(str(tweet))
+            promedio += self.get_autoestima_by_text(str(tweet["text"]))
         promedio = promedio / len(tweets)
         return promedio
 
@@ -193,7 +197,7 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_comprension_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_comprension_by_text(str(tweet))
+            promedio += self.get_comprension_by_text(str(tweet["text"]))
         return promedio/len(tweets)
     
     def get_comprension_by_text(self, text: str):
@@ -211,7 +215,7 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_comunicacion_asertiva_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_comunicacion_asertiva_by_text(str(tweet))
+            promedio += self.get_comunicacion_asertiva_by_text(str(tweet["text"]))
         return promedio/len(tweets)
     
     def get_comunicacion_asertiva_by_text(self, text: str):
@@ -229,7 +233,7 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_conciencia_critica_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_conciencia_critica_by_text(str(tweet))
+            promedio += self.get_conciencia_critica_by_text(str(tweet["text"]))
         return promedio/len(tweets)
     
     def get_conciencia_critica_by_text(self, text: str):
@@ -247,7 +251,7 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_motivacion_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_motivacion_by_text(str(tweet), tipo)
+            promedio += self.get_motivacion_by_text(str(tweet["text"]), tipo)
         promedio = promedio / len(tweets)
         return promedio
 
@@ -283,7 +287,7 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_tolerancia_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_tolerancia_by_text(str(tweet), tipo)
+            promedio += self.get_tolerancia_by_text(str(tweet["text"]), tipo)
         promedio = promedio / len(tweets)
         return promedio 
     
@@ -301,11 +305,54 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_desarrollar_by_group_user(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_desarrollar_by_text_user(str(tweet))
+            promedio += self.get_desarrollar_by_text_user(str(tweet["text"]))
         promedio = promedio / len(tweets)
         return promedio 
+    
+
+    #Empatia 
+    def get_empatia_by_text_user(self, text: str, likes: int):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        subj = blob.subjectivity
+        likes_score = 50 if likes > 50 else 0
+        matches = self.match_factor_dict(text.lower(), 'empatia')
+        match_score = matches*10 if matches <= 3 else 50
+        score = pol*0.2+subj*0.2+match_score+likes_score*0.2
+        return score
+
+    def get_empatia_by_group_user(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_empatia_by_text_user(str(tweet["text"]),int(tweet["likes"]))
+        promedio = promedio / len(tweets)
+        return promedio
+
+
+
 
     pass
+
+
+
+'''
+    # Liderazgo
+    def get_liderazgo_by_text_user(self, text: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >=0 else 0
+        matches = self.match_factor_dict(text.lower(), 'liderazgo')
+        match_score = 0.1 if matches >= 5 else matches * 0.02
+        score = (pol*0.9 + match_score)*100
+        return score
+
+    def get_liderazgo_by_group_user(self, tweets: list):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_liderazgo_by_text_user(str(tweet))
+        promedio = promedio / len(tweets)
+        return promedio 
+'''
+
 
 #class TwitterWrapper(BaseAPIWrapper):
  #   analyzer: TwitterAnalyzer
