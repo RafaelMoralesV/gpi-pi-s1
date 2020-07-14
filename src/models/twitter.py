@@ -328,8 +328,50 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = promedio / len(tweets)
         return promedio
 
+    # Colaboración y cooperacion
+    def get_collaboration_cooperation_by_text(self, text: str, retweet: int, tipo: str):
+        blob = TextBlob(text)
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        matches = self.match_factor_dict(text.lower(), 'colaboracion_cooperacion')
+        if(tipo == 'user'):
+            retweet_score = 10 if retweet >= 10 else 0
+            match_score = matches if matches >= 3 else 0
+        elif(tipo == 'hashtag'):
+            retweet_score = 80 if retweet >= 80 else 0
+            match_score = matches if matches >= 10 else 0
+        
+        score = pol*0.2+retweet_score*0.3+match_score*0.5
+        return score
 
+    def get_collaboration_cooperation_by_group(self, tweets: list, tipo: str):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_collaboration_cooperation_by_text(str(tweet["text"]),int(tweet["retweet_count "]), tipo)
+        promedio = promedio / len(tweets)
+        return promedio
 
+    # Percepcion y comprension emocional
+    def get_percepcion_comprension_emocionaln_by_text(self, text: str, likes: int, tipo: str):
+        blob = TextBlob(text)
+        subj = blob.subjectivity
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        matches = self.match_factor_dict(text.lower(), 'percepcion_comprension_emocional')
+        if(tipo == 'user'):
+            likes_score = 20 if likes >= 20 else 0
+            match_score = matches if matches >= 3 else 0
+        elif(tipo == 'hashtag'):
+            likes_score = 100 if likes >= 100 else 0
+            match_score = matches if matches >= 10 else 0
+        
+        score = pol*0.2+subj*0.2+likes_score*0.1+match_score*0.5
+        return score
+
+    def get_percepcion_comprension_emocional_by_group(self, tweets: list, tipo: str):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_percepcion_comprension_emocionaln_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets)
+        return promedio
 
     pass
 

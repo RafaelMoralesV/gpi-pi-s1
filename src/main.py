@@ -137,6 +137,8 @@ def get_twitter_hashtag(hashtag: str):
     conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(hashtag_tweets)
     motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(hashtag_tweets, 'hashtag')
     tolerancia = twitter_analyzer.get_tolerancia_by_group(hashtag_tweets, 'hashtag')
+    colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(hashtag_tweets, 'hashtag')
+    percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
     
     return jsonify({"Tweets":hashtag_tweets,
         "Autoconciencia":autoconciencia_emocional,
@@ -145,7 +147,10 @@ def get_twitter_hashtag(hashtag: str):
         "Comunicación Asertiva": comunicacion_asertiva,
         "Conciencia Crítica": conciencia_critica,
         "Motivación de logro": motivacion_de_logro,
-        "Tolerancia": tolerancia
+        "Tolerancia": tolerancia,
+        "Colaboración y Cooperación": colaboracion_cooperacion,
+        "Percepción y Comprensión emocional": percepcion_comprension_emocional
+
      })
     #return jsonify({"hashtag": api._json})
 
@@ -164,6 +169,8 @@ def get_tweets(name: str):
     tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
     desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
     empatia = twitter_analyzer.get_empatia_by_group_user(text_tweets)
+    colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(text_tweets, 'user')
+    percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
     #liderazgo = twitter_analyzer.get_liderazgo_by_group_user()
     return jsonify({"Tweets":text_tweets,
         "Autoconciencia":autoconciencia_emocional,
@@ -174,7 +181,9 @@ def get_tweets(name: str):
         "Motivación de logro": motivacion_de_logro,
         "Tolerancia": tolerancia,
         "Desarrollar y estimular a los demas": desarrollar_y_estimular_a_los_demas,
-        "Empatia": empatia
+        "Empatia": empatia,
+        "Colaboración y cooperación": colaboracion_cooperacion,
+        "Percepción y Comprensión emocional": percepcion_comprension_emocional
         #"Liderazgo": liderazgo
      })
 
