@@ -137,9 +137,11 @@ def get_twitter_hashtag(hashtag: str):
     conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(hashtag_tweets)
     motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(hashtag_tweets, 'hashtag')
     tolerancia = twitter_analyzer.get_tolerancia_by_group(hashtag_tweets, 'hashtag')
+    desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(hashtag_tweets)
+    empatia = twitter_analyzer.get_empatia_by_group_user(hashtag_tweets)
     colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(hashtag_tweets, 'hashtag')
     percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
-    
+
     return jsonify({"Tweets":hashtag_tweets,
         "Autoconciencia":autoconciencia_emocional,
         "Autoestima": autoestima,
@@ -148,11 +150,48 @@ def get_twitter_hashtag(hashtag: str):
         "Conciencia Crítica": conciencia_critica,
         "Motivación de logro": motivacion_de_logro,
         "Tolerancia": tolerancia,
+        "Desarrollar y estimular a los demas": desarrollar_y_estimular_a_los_demas,
+        "Empatia": empatia,
         "Colaboración y Cooperación": colaboracion_cooperacion,
         "Percepción y Comprensión emocional": percepcion_comprension_emocional
 
      })
     #return jsonify({"hashtag": api._json})
+
+@app.route('/twitter/tweets/<tweet_id>')
+def get_tweet(tweet_id: str):
+    twitter_client = TwitterClient()
+    tweets_ids = [tweet_id]
+    text_tweets = twitter_client.get_tweet_to_analyze(tweets_ids)
+    twitter_analyzer = TwitterAnalyzer(dictionary)
+
+    autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
+    autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
+    comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
+    comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(text_tweets)
+    conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(text_tweets)
+    motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(text_tweets,'usuario')
+    tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
+    desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
+    empatia = twitter_analyzer.get_empatia_by_group_user(text_tweets)
+    colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(text_tweets, 'user')
+    percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
+    #liderazgo = twitter_analyzer.get_liderazgo_by_group_user()
+    return jsonify({"Tweets":text_tweets,
+        "Autoconciencia":autoconciencia_emocional,
+        "Autoestima": autoestima,
+        "Comprensión Organizativa": comprension_organizativa,
+        "Comunicación Asertiva": comunicacion_asertiva,
+        "Conciencia Crítica": conciencia_critica,
+        "Motivación de logro": motivacion_de_logro,
+        "Tolerancia": tolerancia,
+        "Desarrollar y estimular a los demas": desarrollar_y_estimular_a_los_demas,
+        "Empatia": empatia,
+        "Colaboración y cooperación": colaboracion_cooperacion,
+        "Percepción y Comprensión emocional": percepcion_comprension_emocional
+        #"Liderazgo": liderazgo
+     })
+
 
 @app.route('/twitter/tweets/user/<name>')
 def get_tweets(name: str):
@@ -187,20 +226,23 @@ def get_tweets(name: str):
         #"Liderazgo": liderazgo
      })
 
-@app.route('/twitter')
-def get_tweet():
-    twitter_client = TwitterClient()
-    api = twitter_client.get_twitter_client_api()
-    user = api.get_user("2LarryJohnson7")
-    tweets = api.user_timeline(user.id)
-    tweet : tweepy.models.Status = tweets[0]
-    #tws = [tweet for tweet in tweets]
-    #for tw in tws:
-    #    print(tw.text)
-    #replies = tweepy.Cursor(api.search, q=f"to:{'2LarryJohnson7'}", since_id=tws[2].id, tweet_mode="extended").items()
-    #for reply in replies:
-    #    pass
-    return jsonify({"msg" : tweet._json})
+     
+#@app.route('/twitter')
+#def get_tweet():
+#    twitter_client = TwitterClient()
+#    api = twitter_client.get_twitter_client_api()
+#    user = api.get_user("2LarryJohnson7")
+#    tweets = api.user_timeline(user.id)
+#    tweet : tweepy.models.Status = tweets[0]
+#    #tws = [tweet for tweet in tweets]
+#    #for tw in tws:
+#    #    print(tw.text)
+#    #replies = tweepy.Cursor(api.search, q=f"to:{'2LarryJohnson7'}", since_id=tws[2].id, tweet_mode="extended").items()
+#    #for reply in replies:
+#    #    pass
+#    return jsonify({"msg" : tweet._json})
+
+
 
 if __name__ == "__main__":
     app.run("127.0.0.1", "5000", debug=True)

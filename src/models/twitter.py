@@ -109,6 +109,19 @@ class TwitterClient():
         return tweets
 	'''
 
+    def get_tweet_to_analyze(self, tweet_id):
+        tweets = []
+        tweet = self.twitter_client.statuses_lookup(tweet_id)
+        tweets.append({
+            "id" : tweet[0].id,
+        	"retweeted" : tweet[0].retweeted,
+        	"retweet_count " : tweet[0].retweet_count,
+        	"text" : tweet[0].text,
+            "likes" : tweet[0].favorite_count
+        })
+        return tweets
+
+
 class TwitterAuthenticator():
     # autenticador con las credenciales
     def authenticate_twitter_app(self):
