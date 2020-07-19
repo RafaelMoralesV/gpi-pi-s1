@@ -135,7 +135,6 @@ def get_twitter_users():
     entries = 0
     for name in names:
         user: tweepy.models.User = api.get_user(name)._json
-        print(user)
         tweets: List[tweepy.models.Status] = api.user_timeline(user["id"])
         tws = []
         for tweet in tweets:
