@@ -149,7 +149,6 @@ default_reddit_subreddits = [
     "Wicca",
     "WidescreenWallpaper",
     "wien",
-    "WiggleButts",
     "wigglegrams",
     "WigglyAnimals",
     "wii",
@@ -161,7 +160,6 @@ default_reddit_subreddits = [
     "Wildlands",
     "Wildlife",
     "wildlifephotography",
-    "wildlypenis",
     "WildStar",
     "wince",
     "windows8",
@@ -272,7 +270,6 @@ default_reddit_subreddits = [
     "youtubegaming",
     "youtubesyllables",
     "youtubetv",
-    "YovannaVentura",
     "YuB",
     "YUROP",
     "yvonnestrahovski"
@@ -301,7 +298,7 @@ if __name__ == "__main__":
     columns = list(analysis.toDict().keys())
     columns.append("Duracion")
     df = pd.DataFrame(studies, index=amounts, columns=columns)
-    filename = f"test-{str(uuid4()).split('-')[0]}.xlsx"
+    filename = f"reddit-test-{str(uuid4()).split('-')[0]}.xlsx"
     df.to_excel(filename)
     print(f"Archivo {filename} creado con éxito!")
             
