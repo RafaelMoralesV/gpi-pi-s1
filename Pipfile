@@ -21,6 +21,8 @@ gunicorn = "*"
 pandas = "*"
 xlrd = "*"
 python-dotenv = "*"
+googletrans = "*"
+openpyxl = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.6.9"

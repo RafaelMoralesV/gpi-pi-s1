@@ -8,7 +8,7 @@ from werkzeug.datastructures import FileStorage
 from flask_cors import CORS
 from models.base import Analysis
 from models.reddit import RedditWrapper, RedditAnalyzer, Submission, Redditor
-from models.twitter import TwitterData, TwitterStreamer, TwitterClient, TweetAnalyzer
+from models.twitter import TwitterData, TwitterStreamer, TwitterClient, TwitterAnalyzer
 from typing import List, IO
 from tweepy import OAuthHandler
 import tweepy
@@ -118,127 +118,110 @@ def translate_text():
 def download():
     return send_file("../data/template.xlsx", as_attachment=True)
 
-@app.route('/twitter/user', methods=["GET", "POST"])
-def get_twitter_users():
-    if request.method == "GET":
-        names = ["ryanmdahl", "MagnusCarlsen", "denniskuo"]
-    else:
-        if 'plantilla' not in request.files:
-            return Response("", status=400)
-        else:
-            data: FileStorage = request.files["plantilla"]
-            sheet = str_to_sheet(data.stream.read())
-            names = sheet["twitter_users"]
-    twitter_client = TwitterClient()
-    api = twitter_client.get_twitter_client_api()
-    users = []
-    entries = 0
-    for name in names:
-        user: tweepy.models.User = api.get_user(name)._json
-        tweets: List[tweepy.models.Status] = api.user_timeline(user["id"])
-        tws = []
-        for tweet in tweets:
-            tweet = tweet._json
-            tw = {}
-            tw["id"] = tweet["id"]
-            tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
-            tw["retweet_count"] = tweet["retweet_count"]
-            tw["text"] = tweet["text"]
-            tws.append(tw)
-        entries += len(tws)
-        fmt_user = {
-            "id" : user["id"],
-            "name": user["name"],
-            "description": user["description"],
-            "location" : user["location"],
-            "url" : user["url"],
-            "verified" : user["verified"],
-            "tweets_count": user["statuses_count"],
-            "tweets": tws,
-            "analysis": Analysis().toRandomDict()
-        }
-        users.append(fmt_user)
-    return jsonify({"users" : users, "n_entries": entries})
-    
-@app.route('/twitter/user/<name>')
-def get_twitter_user(name: str):
-    twitter_client = TwitterClient()
-    api = twitter_client.get_twitter_client_api()
-    user: tweepy.models.User = api.get_user(name)._json
-    tweets: List[tweepy.models.Status] = api.user_timeline(user["id"])
-    tws = []
-    for tweet in tweets:
-        tweet = tweet._json
-        tw = {}
-        tw["id"] = tweet["id"]
-        tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
-        tw["retweet_count"] = tweet["retweet_count"]
-        tw["text"] = tweet["text"]
-        tws.append(tw)
-    fmt_user = {
-        "id" : user["id"],
-        "name": user["name"],
-        "description": user["description"],
-        "location" : user["location"],
-        "url" : user["url"],
-        "verified" : user["verified"],
-        "tweets_count": user["statuses_count"],
-        "tweets": tws,
-        "analysis": Analysis().toRandomDict()
-    }
-    return jsonify({"user": fmt_user, "n_entries": len(tws)})
-
 @app.route('/twitter/hashtags/<hashtag>')
-def get_hashtag(hashtag: str):
+def get_twitter_hashtag(hashtag: str):
     twitter_client = TwitterClient()
-    api = twitter_client.get_twitter_client_api()
-    tweets = tweepy.Cursor(api.search, q="#"+hashtag, rpp=10).items(limit=15)
-    tws = []
-    for tweet in tweets:
-        tweet = tweet._json
-        tw = {}
-        tw["id"] = tweet["id"]
-        tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
-        tw["retweet_count"] = tweet["retweet_count"]
-        tw["text"] = tweet["text"]
-        tws.append(tw)
-    fmt_hashtag = {
-        "name": "#" + hashtag,
-        "tweets" : tws,
-        "analysis" : Analysis().toRandomDict()
-    }
-    return jsonify({"hashtag" : fmt_hashtag, "n_entries" : len(tws)})
 
-@app.route('/twitter/hashtags', methods=["GET", "POST"])
-def get_hashtags():
-    hashtag_names: List[str] = []
-    if request.method == "GET":
-        hashtag_names = ["#cats", "#dogs"]
-    else:
-        if 'plantilla' not in request.files:
-            return Response("", status=400)
-        else:
-            data: FileStorage = request.files["plantilla"]
-            sheet = str_to_sheet(data.stream.read())
-            hashtag_names = sheet["hashtags"]
+    hashtag_tweets = twitter_client.get_hashtag_tweets_to_analyze("#" + hashtag)
+    twitter_analyzer = TwitterAnalyzer(dictionary)
+
+    autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(hashtag_tweets)
+    autoestima = twitter_analyzer.get_autoestima_by_group(hashtag_tweets)
+    comprension_organizativa = twitter_analyzer.get_comprension_by_group(hashtag_tweets)
+    comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(hashtag_tweets)
+    conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(hashtag_tweets)
+    motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(hashtag_tweets, 'hashtag')
+    tolerancia = twitter_analyzer.get_tolerancia_by_group(hashtag_tweets, 'hashtag')
+    desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(hashtag_tweets)
+    empatia = twitter_analyzer.get_empatia_by_group_user(hashtag_tweets)
+    colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(hashtag_tweets, 'hashtag')
+    percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
+
+    analysis = Analysis(
+        autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+        comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
+        conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
+        tolerancia_frustracion=tolerancia,desarrollo_relaciones=desarrollar_y_estimular_a_los_demas,
+        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
+
+    return jsonify({
+        "name": hashtag,
+        "tweets": hashtag_tweets,
+        "analysis": analysis.toDict(),
+        "n_entries": len(hashtag_tweets)
+    })
+
+@app.route('/twitter/user/<name>')
+def get_tweets(name: str):
     twitter_client = TwitterClient()
-    api = twitter_client.get_twitter_client_api()
-    hashtags = []
-    entries = 0
-    for hashtag_name in hashtag_names:
-        tweets = tweepy.Cursor(api.search, q=hashtag_name, rpp=10).items(limit=10)
-        tws = []
-        for tweet in tweets:
-            tweet = tweet._json
-            tw = {}
-            tw["id"] = tweet["id"]
-            tw["hashtags"] = [hashtag["text"] for hashtag in tweet["entities"]["hashtags"]]
-            tw["retweet_count"] = tweet["retweet_count"]
-            tw["text"] = tweet["text"]
-            tws.append(tw)
-        entries += len(tws)
-        hashtags.append({"name" : hashtag_name, "tweets" : tws, "analysis": Analysis().toRandomDict()})
-    return jsonify({"hashtags" : hashtags, "n_entries": entries})
+    text_tweets = twitter_client.get_tweets_to_analyze(name)
+    twitter_analyzer = TwitterAnalyzer(dictionary)
+
+    user = twitter_client.twitter_client.get_user(name)
+
+    autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
+    autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
+    comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
+    comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(text_tweets)
+    conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(text_tweets)
+    motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(text_tweets,'usuario')
+    tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
+    desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
+    empatia = twitter_analyzer.get_empatia_by_group_user(text_tweets)
+    colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(text_tweets, 'user')
+    percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
+    #liderazgo = twitter_analyzer.get_liderazgo_by_group_user()
+
+    analysis = Analysis(
+        autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+        comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
+        conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
+        tolerancia_frustracion=tolerancia,desarrollo_relaciones=desarrollar_y_estimular_a_los_demas,
+        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
+
+    return jsonify({
+        "user": user._json,
+        "tweets": text_tweets,
+        "analysis" : analysis.toDict(),
+        "n_entries": len(text_tweets)
+     })
+
+@app.route('/twitter/analyze-tweet', methods=["POST"])
+def get_tweet():
+    data = request.json
+    if "tweet_id" not in data:
+        return Response("", status=400)
+    tweet_id = data["tweet_id"]
+    twitter_client = TwitterClient()
+    tweets_ids = [tweet_id]
+    text_tweets = twitter_client.get_tweet_to_analyze(tweets_ids)
+    twitter_analyzer = TwitterAnalyzer(dictionary)
+
+    autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
+    autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
+    comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
+    comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(text_tweets)
+    conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(text_tweets)
+    motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(text_tweets,'usuario')
+    tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
+    desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
+    empatia = twitter_analyzer.get_empatia_by_group_user(text_tweets)
+    colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(text_tweets, 'user')
+    percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
+    #liderazgo = twitter_analyzer.get_liderazgo_by_group_user()
+
+    analysis = Analysis(
+        autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+        comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
+        conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
+        tolerancia_frustracion=tolerancia,desarrollo_relaciones=desarrollar_y_estimular_a_los_demas,
+        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
+
+    return jsonify({
+        "analysis" : analysis.toDict()
+    })
 
 if __name__ == "__main__":
     app.run("127.0.0.1", os.getenv("PORT"), debug=bool(os.getenv("DEBUG")))
+
+

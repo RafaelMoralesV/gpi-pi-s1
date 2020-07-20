@@ -227,7 +227,7 @@ class RedditAnalyzer(BaseAnalyzer):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
         subjectivity = blob.subjectivity
-        matches = self.match_factor_dict(text.lower(), 'tolerancia_a_la_frustración')
+        matches = self.match_factor_dict(text.lower(), 'tolerancia_a_la_frustracion')
         match_score = matches*5 if matches <= word_limit else word_limit*5
         score = pol*40+subjectivity*subj_limit_score+match_score
         return score
@@ -245,7 +245,7 @@ class RedditAnalyzer(BaseAnalyzer):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
         subjectivity = blob.subjectivity
-        matches = self.match_factor_dict(text.lower(), 'motivación_de_logro')
+        matches = self.match_factor_dict(text.lower(), 'motivacion_de_logro')
         match_score = matches*5 if matches <= 2 else 10
         score = pol * 60 + subjectivity * 30 + match_score
         return score
@@ -270,7 +270,7 @@ class RedditAnalyzer(BaseAnalyzer):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
         subjectivity = blob.subjectivity
-        matches = self.match_factor_dict(text.lower(), 'conciencia_crítica')
+        matches = self.match_factor_dict(text.lower(), 'conciencia_critica')
         match_score = matches*5 if matches <= word_limit else word_limit*5
         score = pol * pol_limit_score + subjectivity * 60 + match_score
         return score
@@ -295,7 +295,7 @@ class RedditAnalyzer(BaseAnalyzer):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
         subjectivity = blob.subjectivity
-        matches = self.match_factor_dict(text.lower(), 'comprensión_organizativa')
+        matches = self.match_factor_dict(text.lower(), 'comprension_organizativa')
         match_score = matches*5 if matches <= word_limit else 5*word_limit
         score = pol * 30 + subjectivity*subj_limit_score+match_score
         return score
