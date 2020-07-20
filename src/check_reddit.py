@@ -24,7 +24,7 @@ rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 
 # Comentar luego de prueba inicial
 
-amounts = [5, 10, 50, 100]
+amounts = [5, 10, 50, 100, 200]
 
 default_reddit_subreddits = ["golang", "Futurology", "MemeEconomy"]
 
@@ -132,7 +132,6 @@ default_reddit_subreddits = [
     "whole30",
     "wholesome",
     "Wholesome4chan",
-    "Wholesomecringe",
     "wholesomefortnite",
     "wholesomejojo",
     "Wholesomenosleep",
@@ -141,7 +140,6 @@ default_reddit_subreddits = [
     "wholesomepranks",
     "wholesomeprequelmemes",
     "wholesomevandalism",
-    "whoooosh",
     "whoosh",
     "whoselineisitanyway",
     "whothefuckup",
@@ -250,7 +248,6 @@ default_reddit_subreddits = [
     "YAlit",
     "yandere_simulator",
     "YangForPresidentHQ",
-    "yankees",
     "YarnAddicts",
     "YasuoMains",
     "yescompanionimbecil",
@@ -279,7 +276,9 @@ default_reddit_subreddits = [
 if __name__ == "__main__":
     data = dict()
     submissions: List[Submission] = []
+    print("Consultando entradas de reddit")
     for subreddit_name in default_reddit_subreddits:
+        print(f"Consultando {subreddit_name}")
         subreddit: Subreddit = rwrapper.reddit.subreddit(subreddit_name)
         submissions.extend(list(subreddit.controversial("all")))
     length = len(submissions)
