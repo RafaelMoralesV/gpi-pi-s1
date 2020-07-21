@@ -12,6 +12,8 @@
 
 Tutorial: https://www.youtube.com/watch?v=hX4yh8eLqlE
 
+### Descomprimir data.zip en el mismo directorio (ubicacion: ./data/data.zip)
+
 ### Ejecución y prueba inicial
 
 Nota: Según instalación se pueden requerir las siguientes modificaciones en los comandos:

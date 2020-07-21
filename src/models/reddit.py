@@ -1,5 +1,6 @@
 from models.base import Analysis, BaseAnalyzer, BaseAPIWrapper
 import praw
+import time
 from praw.models import Redditor, Comment, Subreddit, Submission
 from textblob import TextBlob
 from statistics import mean
@@ -15,37 +16,37 @@ class RedditAnalyzer(BaseAnalyzer):
         submissions = list(subreddit.hot())
         return self.analyze_submissions(submissions, True)
     
-    def analyze_submissions(self, sublist: List[Submission], is_subreddit: bool = False) -> (Analysis, List[Submission]):
+    def analyze_submissions(self, sublist: List[Submission], is_subreddit: bool = False, debug:bool = False) -> (Analysis, List[Submission]):
         if is_subreddit:
-            percepcion = self.switch_factor_grouped(sublist, 'percepcion')
-            colaboracion = self.switch_factor_grouped(sublist, 'colaboracion')
-            conciencia = self.switch_factor_grouped(sublist, 'conciencia')
-            tolerancia = self.switch_factor_grouped(sublist, 'tolerancia')
-            comprension = self.switch_factor_grouped(sublist, 'comprension')
-            asertividad = self.switch_factor_grouped(sublist, 'asertividad')
-            desarrollo = self.switch_factor_grouped(sublist, 'desarrollo')
-            liderazgo = self.switch_factor_grouped(sublist, 'liderazgo')
-            manejo_conflictos = self.switch_factor_grouped(sublist, 'manejo_conflicto')
-            violencia = self.switch_factor_grouped(sublist, 'violencia')
-            relacion_social = self.switch_factor_grouped(sublist, 'relacion')
-            optimismo = self.switch_factor_grouped(sublist, 'optimismo')
+            percepcion = self.switch_factor_grouped(sublist, 'percepcion', debug)
+            colaboracion = self.switch_factor_grouped(sublist, 'colaboracion', debug)
+            conciencia = self.switch_factor_grouped(sublist, 'conciencia', debug)
+            tolerancia = self.switch_factor_grouped(sublist, 'tolerancia', debug)
+            comprension = self.switch_factor_grouped(sublist, 'comprension', debug)
+            asertividad = self.switch_factor_grouped(sublist, 'asertividad', debug)
+            desarrollo = self.switch_factor_grouped(sublist, 'desarrollo', debug)
+            liderazgo = self.switch_factor_grouped(sublist, 'liderazgo', debug)
+            manejo_conflictos = self.switch_factor_grouped(sublist, 'manejo_conflicto', debug)
+            violencia = self.switch_factor_grouped(sublist, 'violencia', debug)
+            relacion_social = self.switch_factor_grouped(sublist, 'relacion', debug)
+            optimismo = self.switch_factor_grouped(sublist, 'optimismo', debug)
         else:
-            percepcion = self.switch_factor(sublist, 'percepcion')
-            colaboracion = self.switch_factor(sublist, 'colaboracion')
-            conciencia = self.switch_factor(sublist, 'conciencia')
-            tolerancia = self.switch_factor(sublist, 'tolerancia')
-            comprension = self.switch_factor(sublist, 'comprension')
-            asertividad = self.switch_factor(sublist, 'asertividad')
-            desarrollo = self.switch_factor(sublist, 'desarrollo')
-            liderazgo = self.switch_factor(sublist, 'liderazgo')
-            manejo_conflictos = self.switch_factor(sublist, 'manejo_conflicto')
-            violencia = self.switch_factor(sublist, 'violencia')
-            relacion_social = self.switch_factor(sublist, 'relacion')
-            optimismo = self.switch_factor(sublist, 'optimismo')
-        empatia = self.switch_factor(sublist, 'empatia')
-        autoconciencia_emocional = self.switch_factor(sublist, 'autoconciencia')
-        autoestima = self.switch_factor(sublist, 'autoestima')
-        motivacion = self.switch_factor(sublist, 'motivacion')
+            percepcion = self.switch_factor(sublist, 'percepcion', debug)
+            colaboracion = self.switch_factor(sublist, 'colaboracion', debug)
+            conciencia = self.switch_factor(sublist, 'conciencia', debug)
+            tolerancia = self.switch_factor(sublist, 'tolerancia', debug)
+            comprension = self.switch_factor(sublist, 'comprension', debug)
+            asertividad = self.switch_factor(sublist, 'asertividad', debug)
+            desarrollo = self.switch_factor(sublist, 'desarrollo', debug)
+            liderazgo = self.switch_factor(sublist, 'liderazgo', debug)
+            manejo_conflictos = self.switch_factor(sublist, 'manejo_conflicto', debug)
+            violencia = self.switch_factor(sublist, 'violencia', debug)
+            relacion_social = self.switch_factor(sublist, 'relacion', debug)
+            optimismo = self.switch_factor(sublist, 'optimismo', debug)
+        empatia = self.switch_factor(sublist, 'empatia', debug)
+        autoconciencia_emocional = self.switch_factor(sublist, 'autoconciencia', debug)
+        autoestima = self.switch_factor(sublist, 'autoestima', debug)
+        motivacion = self.switch_factor(sublist, 'motivacion', debug)
         return Analysis(
             empatia=empatia ,colaboracion_cooperacion=colaboracion, percepcion_comprension_emocional=percepcion, 
             autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima, 
@@ -373,19 +374,28 @@ class RedditAnalyzer(BaseAnalyzer):
         return subs_score + sub.upvote_ratio * 60 + match_score
     
     def get_liderazgo_by_sub(self, sub: Submission) -> float:
-        is_gold = 20 if sub.author.is_gold else 0
-        votes_score = sub.upvote_ratio * 30
-        blob = TextBlob(sub.title)
-        pol = blob.polarity if blob.polarity >= 0 else 0
-        matches = self.match_factor_dict(sub.title, 'liderazgo')
-        match_score = matches*5 if matches <= 4 else 20
-        if(sub.selftext):
-            blob = TextBlob(sub.selftext)
-            pol2 = blob.polarity if blob.polarity >= 0 else 0
-            matches = self.match_factor_dict(sub.selftext, 'liderazgo')
-            match_score2 = matches*5 if matches <= 4 else 20
-            return is_gold + votes_score + pol*15 + pol2 * 15 + match_score * 0.5 + match_score2 * 0.5
-        return is_gold + votes_score + pol*30 + match_score
+        is_gold = 0
+        redditor = None
+        try:
+            redditor: Redditor = sub.author
+        except:
+            stamp = time.strftime("%H:%M")
+            print(f"[{stamp}] Error al obtener autor de (Submission: {sub.id})")
+        finally:
+            if redditor != None and hasattr(redditor, 'is_gold'):
+                is_gold = 20 if redditor.is_gold else 0
+            votes_score = sub.upvote_ratio * 30
+            blob = TextBlob(sub.title)
+            pol = blob.polarity if blob.polarity >= 0 else 0
+            matches = self.match_factor_dict(sub.title, 'liderazgo')
+            match_score = matches*5 if matches <= 4 else 20
+            if(sub.selftext):
+                blob = TextBlob(sub.selftext)
+                pol2 = blob.polarity if blob.polarity >= 0 else 0
+                matches = self.match_factor_dict(sub.selftext, 'liderazgo')
+                match_score2 = matches*5 if matches <= 4 else 20
+                return is_gold + votes_score + pol*15 + pol2 * 15 + match_score * 0.5 + match_score2 * 0.5
+            return is_gold + votes_score + pol*30 + match_score
 
     # Manejo de conflictos
 
@@ -528,22 +538,47 @@ class RedditAnalyzer(BaseAnalyzer):
     def split_score(self, title_score: float, body_score: float) -> float:
         return title_score*0.7+body_score*0.3
 
-    def switch_factor(self, sublist: Union[Submission, List[Submission]], factor: str) -> float:
+    def switch_factor(self, sublist: Union[Submission, List[Submission]], factor: str, debug:bool=False) -> float:
         factor_method = f"get_{factor}_by_sub"    
         method = getattr(self, factor_method)
+        stamp = time.strftime("%H:%M")
+        print(f"[{stamp}] Iniciando Análisis para {factor}...")
         if type(sublist) != list:
             return method(sublist)
-        resultset = [method(sub) for sub in sublist]
+        resultset: float = []
+        for sub in sublist:
+            sub: Submission
+            try:
+                result = method(sub)
+                resultset.append(result)
+            except Exception as e:
+                print(e)
+                stamp = time.strftime("%H:%M")
+                print(f"[{stamp}] Error al evaluar (Submission: {sub.id}). Ignorando...")
+                pass
         score = mean(resultset)
+        if debug:
+            stamp = time.strftime("%H:%M")
+            print(f"[{stamp}] Factor: {factor} ✓") 
         return score
     
-    def switch_factor_grouped(self, sublist: Union[Submission, List[Submission]], factor: str) -> float:
+    def switch_factor_grouped(self, sublist: Union[Submission, List[Submission]], factor: str, debug:bool = False) -> float:
         factor_method = f"get_{factor}_by_grouped_sub"    
         method = getattr(self, factor_method)
         if type(sublist) != list:
             return method(sublist)
-        resultset = [method(sub) for sub in sublist]
+        resultset: float = []
+        for sub in sublist:
+            sub: Submission
+            try:
+                result = method(sub)
+                resultset.append(result)
+            except:
+                print(f"Error al evaluar (Submission: {sub.id}). Esta será ignorada")
         score = mean(resultset)
+        if debug:
+            stamp = time.strftime("%H:%M")
+            print(f"[{stamp}] Factor: {factor} ✓")
         return score
 
 class RedditWrapper(BaseAPIWrapper):
