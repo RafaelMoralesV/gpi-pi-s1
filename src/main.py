@@ -141,7 +141,7 @@ def get_twitter_hashtag(hashtag: str):
         autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
         comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
         conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-        tolerancia_frustracion=tolerancia,desarrollo_relaciones=desarrollar_y_estimular_a_los_demas,
+        tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
         empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
 
     return jsonify({
@@ -176,7 +176,7 @@ def get_tweets(name: str):
         autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
         comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
         conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-        tolerancia_frustracion=tolerancia,desarrollo_relaciones=desarrollar_y_estimular_a_los_demas,
+        tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
         empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
 
     return jsonify({
@@ -214,7 +214,7 @@ def get_tweet():
         autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
         comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
         conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-        tolerancia_frustracion=tolerancia,desarrollo_relaciones=desarrollar_y_estimular_a_los_demas,
+        tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
         empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
 
     return jsonify({

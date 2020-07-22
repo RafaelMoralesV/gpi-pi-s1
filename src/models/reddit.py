@@ -52,7 +52,7 @@ class RedditAnalyzer(BaseAnalyzer):
             autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima, 
             conciencia_critica = conciencia, tolerancia_frustracion=tolerancia,
             motivacion_logro = motivacion, comprension_organizativa=comprension,asertividad=asertividad,
-            desarrollo_relaciones=desarrollo, liderazgo=liderazgo, manejo_conflictos=manejo_conflictos,
+            desarrollar_estimular=desarrollo, liderazgo=liderazgo, manejo_conflictos=manejo_conflictos,
             relacion_social=relacion_social, optimismo=optimismo, violencia=violencia), sublist
 
     def analyze_submission(self, submission: Submission) -> Analysis:
@@ -77,7 +77,7 @@ class RedditAnalyzer(BaseAnalyzer):
             autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima, 
             conciencia_critica = conciencia, tolerancia_frustracion=tolerancia,
             motivacion_logro = motivacion, comprension_organizativa=comprension,asertividad=asertividad,
-            desarrollo_relaciones=desarrollo, liderazgo=liderazgo, manejo_conflictos=manejo_conflictos,
+            desarrollar_estimular=desarrollo, liderazgo=liderazgo, manejo_conflictos=manejo_conflictos,
             relacion_social=relacion_social, optimismo=optimismo, violencia=violencia)
 
 

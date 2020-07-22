@@ -5,16 +5,12 @@ class Analysis:
 
     asertividad : float
     autoconciencia_emocional : float
-    autocontrol_emocional: float
     autoestima: float
     colaboracion_cooperacion: float
     comprension_organizativa: float
-    comunicacion_asertiva: float
     conciencia_critica: float
-    desarrollar_estimular_otros: float
-    desarrollo_relaciones: float
+    desarrollar_estimular: float
     empatia: float
-    influencia: float
     liderazgo : float
     manejo_conflictos: float
     motivacion_logro: float
@@ -27,8 +23,8 @@ class Analysis:
     __factors = [
         "asertividad", "autoconciencia_emocional", "autoestima", 
         "colaboracion_cooperacion", "comprension_organizativa", "conciencia_critica",
-        "desarrollo_relaciones",
-        "empatia", "influencia", "liderazgo", "manejo_conflictos",
+        "desarrollar_estimular",
+        "empatia", "liderazgo", "manejo_conflictos",
         "motivacion_logro", "optimismo", "percepcion_comprension_emocional",
         "relacion_social", "tolerancia_frustracion", "violencia"
     ]
