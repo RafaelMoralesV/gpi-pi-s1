@@ -419,6 +419,36 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = promedio / len(tweets)
         return promedio
 
+    # Violencia
+    def get_violencia_by_text(self, text: str, likes: int, tipo: str):
+        blob = TextBlob(text)
+        subj = blob.subjectivity
+        pol = blob.polarity if blob.polarity < 0 else 0
+        hashtag_score = 0
+        full_text = text.split()
+        for word in full_text:
+            if('#' in word):
+                search_word = word.replace('#','')
+                hashtag_score += self.match_factor_dict(search_word.lower(), 'violencia')
+        matches = self.match_factor_dict(text.lower(), 'violencia')
+        if(tipo == 'user'):
+            hashtag_score = 10 if hashtag_score > 10 else 0
+            likes_score = 100 if likes > 100 else 0
+            match_score = 20 if matches > 20 else 0
+            score = pol*5+subj*5+0.25*likes_score*0.1+match_score+hashtag_score*50
+        elif(tipo == 'hashtag'):
+            match_score = matches if matches > 30 else 0
+            score = pol*30+subj*40+match_score
+        
+        return score
+
+    def get_violencia_by_group(self, tweets: list, tipo: str):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_violencia_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets)
+        return promedio
+
     pass
 
 
