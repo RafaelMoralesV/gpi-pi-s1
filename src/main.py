@@ -138,6 +138,8 @@ def get_twitter_hashtag(hashtag: str):
     percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
     manejo_de_conflictos = twitter_analyzer.get_manejo_de_conflictos_by_group(hashtag_tweets, 'hashtag')
     violencia = twitter_analyzer.get_violencia_by_group(hashtag_tweets, 'hashtag')
+    relacion_social = twitter_analyzer.get_relacion_social_by_group(hashtag_tweets, 'hashtag')
+    optimismo = twitter_analyzer.get_optimismo_by_group(hashtag_tweets, 'hashtag')
 
     analysis = Analysis(
         autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
@@ -145,7 +147,7 @@ def get_twitter_hashtag(hashtag: str):
         conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
         tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
         empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-        manejo_de_conflictos=manejo_de_conflictos, violencia=violencia)
+        manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo)
 
     return jsonify({
         "name": hashtag,
@@ -176,6 +178,8 @@ def get_tweets(name: str):
     #liderazgo = twitter_analyzer.get_liderazgo_by_group_user()
     manejo_de_conflictos = twitter_analyzer.get_manejo_de_conflictos_by_group(text_tweets, 'user')
     violencia = twitter_analyzer.get_violencia_by_group(text_tweets, 'user')
+    relacion_social = twitter_analyzer.get_relacion_social_by_group(text_tweets, 'user')
+    optimismo = twitter_analyzer.get_optimismo_by_group(text_tweets, 'user')
     
     analysis = Analysis(
         autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
@@ -183,7 +187,7 @@ def get_tweets(name: str):
         conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
         tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
         empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-        manejo_de_conflictos=manejo_de_conflictos, violencia=violencia)
+        manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo)
 
     return jsonify({
         "user": user._json,

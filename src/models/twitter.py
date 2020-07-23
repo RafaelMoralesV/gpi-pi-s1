@@ -406,8 +406,7 @@ class TwitterAnalyzer(BaseAnalyzer):
             match_score = 20 if matches > 20 else 0
             score = pol*5+subj*5+0.1*likes_score*0.1+match_score+hashtag_score*6
         elif(tipo == 'hashtag'):
-            likes_score = 100 if likes >= 100 else 0
-            match_score = matches if matches > 30 else 0
+            match_score = 30 if matches > 30 else 0
             score = pol*40+subj*30+match_score
         
         return score
@@ -437,7 +436,7 @@ class TwitterAnalyzer(BaseAnalyzer):
             match_score = 20 if matches > 20 else 0
             score = pol*5+subj*5+0.25*likes_score*0.1+match_score+hashtag_score*50
         elif(tipo == 'hashtag'):
-            match_score = matches if matches > 30 else 0
+            match_score = 30 if matches > 30 else 0
             score = pol*30+subj*40+match_score
         
         return score
@@ -446,6 +445,65 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_violencia_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets)
+        return promedio
+
+    # Relación Social
+    def get_relacion_social_by_text(self, text: str, likes: int, tipo: str):
+        blob = TextBlob(text)
+        subj = blob.subjectivity
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        hashtag_score = 0
+        full_text = text.split()
+        for word in full_text:
+            if('#' in word):
+                search_word = word.replace('#','')
+                hashtag_score += self.match_factor_dict(search_word.lower(), 'relacion_social')
+        matches = self.match_factor_dict(text.lower(), 'relacion_social')
+        if(tipo == 'user'):
+            hashtag_score = 10 if hashtag_score > 10 else 0
+            likes_score = 20 if likes > 20 else 0
+            match_score = 20 if matches > 20 else 0
+            score = pol*5+subj*5+0.5*likes_score*0.1+match_score+hashtag_score*6
+        elif(tipo == 'hashtag'):
+            match_score = 20 if matches > 20 else 0
+            score = pol*30+subj*50+match_score
+        
+        return score
+
+    def get_relacion_social_by_group(self, tweets: list, tipo: str):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_relacion_social_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets)
+        return promedio
+
+    # Optimismo
+    def get_optimismo_by_text(self, text: str, likes: int, tipo: str):
+        blob = TextBlob(text)
+        subj = blob.subjectivity
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        hashtag_score = 0
+        full_text = text.split()
+        for word in full_text:
+            if('#' in word):
+                search_word = word.replace('#','')
+                hashtag_score += self.match_factor_dict(search_word.lower(), 'optimismo')
+        matches = self.match_factor_dict(text.lower(), 'optimismo')
+        if(tipo == 'user'):
+            hashtag_score = 10 if hashtag_score > 10 else 0
+            match_score = 10 if matches > 10 else 0
+            score = subj*80+match_score+hashtag_score
+        elif(tipo == 'hashtag'):
+            match_score = 10 if matches > 10 else 0
+            score = pol*20+subj*70+match_score
+        
+        return score
+
+    def get_optimismo_by_group(self, tweets: list, tipo: str):
+        promedio = 0
+        for tweet in tweets:
+            promedio += self.get_optimismo_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
         promedio = promedio / len(tweets)
         return promedio
 
