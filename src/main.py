@@ -136,13 +136,15 @@ def get_twitter_hashtag(hashtag: str):
     empatia = twitter_analyzer.get_empatia_by_group_user(hashtag_tweets)
     colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(hashtag_tweets, 'hashtag')
     percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
+    manejo_de_conflictos = twitter_analyzer.get_manejo_de_conflictos_by_group(hashtag_tweets, 'hashtag')
 
     analysis = Analysis(
         autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
         comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
         conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
         tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
+        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
+        manejo_de_conflictos=manejo_de_conflictos)
 
     return jsonify({
         "name": hashtag,
@@ -171,13 +173,14 @@ def get_tweets(name: str):
     colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(text_tweets, 'user')
     percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
     #liderazgo = twitter_analyzer.get_liderazgo_by_group_user()
-
+    manejo_de_conflictos = twitter_analyzer.get_manejo_de_conflictos_by_group(text_tweets, 'user')
     analysis = Analysis(
         autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
         comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
         conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
         tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional)
+        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
+        manejo_de_conflictos=manejo_de_conflictos)
 
     return jsonify({
         "user": user._json,
