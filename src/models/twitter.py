@@ -401,6 +401,7 @@ class TwitterAnalyzer(BaseAnalyzer):
                 hashtag_score += self.match_factor_dict(search_word.lower(), 'manejo_de_conflictos')
         matches = self.match_factor_dict(text.lower(), 'manejo_de_conflictos')
         if(tipo == 'user'):
+            hashtag_score = 10 if hashtag_score > 10 else 0
             likes_score = 100 if likes > 100 else 0
             match_score = 20 if matches > 20 else 0
             score = pol*5+subj*5+0.1*likes_score*0.1+match_score+hashtag_score*6
