@@ -446,6 +446,7 @@ class TwitterAnalyzer(BaseAnalyzer):
         for tweet in tweets:
             promedio += self.get_violencia_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
         promedio = promedio / len(tweets)
+        print("Analizando factor de violencia")
         return promedio
 
     # Relación Social
@@ -476,6 +477,7 @@ class TwitterAnalyzer(BaseAnalyzer):
         for tweet in tweets:
             promedio += self.get_relacion_social_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
         promedio = promedio / len(tweets)
+        print("Analizando factor de relación social")
         return promedio
 
     # Optimismo
@@ -505,13 +507,14 @@ class TwitterAnalyzer(BaseAnalyzer):
         for tweet in tweets:
             promedio += self.get_optimismo_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
         promedio = promedio / len(tweets)
+        print("Analizando factor de optimismo")
         return promedio
 
     pass
 
 
 
-'''
+
     # Liderazgo
     def get_liderazgo_by_text_user(self, text: str):
         blob = TextBlob(text)
@@ -526,19 +529,67 @@ class TwitterAnalyzer(BaseAnalyzer):
         for tweet in tweets:
             promedio += self.get_liderazgo_by_text_user(str(tweet))
         promedio = promedio / len(tweets)
+        print("Analizando factor de liderazgo")
         return promedio 
-'''
 
 
-#class TwitterWrapper(BaseAPIWrapper):
- #   analyzer: TwitterAnalyzer
- #   twitter_client: TwitterClient
- #   def __init__(self, client : TwitterClient ,analyzer: TwitterAnalyzer):
-  #      self.analyzer = analyzer
-  #      self.reddit = reddit
-    
+    def analyze_user_by_name(self, name: str, twitter_client: TwitterClient):
+        text_tweets = twitter_client.get_tweets_to_analyze(name)
+        autoconciencia_emocional = self.get_autoconciencia_by_group(text_tweets)
+        autoestima = self.get_autoestima_by_group(text_tweets)
+        comprension_organizativa = self.get_comprension_by_group(text_tweets)
+        comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(text_tweets)
+        conciencia_critica = self.get_conciencia_critica_by_group(text_tweets)
+        motivacion_de_logro = self.get_motivacion_by_group(text_tweets,'usuario')
+        tolerancia = self.get_tolerancia_by_group(text_tweets, 'usuario')
+        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(text_tweets)
+        empatia = self.get_empatia_by_group_user(text_tweets)
+        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(text_tweets, 'user')
+        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
+        liderazgo = self.get_liderazgo_by_group_user(text_tweets)
+        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(text_tweets, 'user')
+        violencia = self.get_violencia_by_group(text_tweets, 'user')
+        relacion_social = self.get_relacion_social_by_group(text_tweets, 'user')
+        optimismo = self.get_optimismo_by_group(text_tweets, 'user')
 
-    
+        analysis = Analysis(
+            autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+            comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
+            conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
+            tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
+            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
+            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo=liderazgo)
+
+        return text_tweets, analysis
+
+    def analyze_by_hashtag(self, hashtag: str, twitter_client: TwitterClient):
+        hashtag_tweets = twitter_client.get_hashtag_tweets_to_analyze("#" + hashtag)
+        autoconciencia_emocional = self.get_autoconciencia_by_group(hashtag_tweets)
+        autoestima = self.get_autoestima_by_group(hashtag_tweets)
+        comprension_organizativa = self.get_comprension_by_group(hashtag_tweets)
+        comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(hashtag_tweets)
+        conciencia_critica = self.get_conciencia_critica_by_group(hashtag_tweets)
+        motivacion_de_logro = self.get_motivacion_by_group(hashtag_tweets, 'hashtag')
+        tolerancia = self.get_tolerancia_by_group(hashtag_tweets, 'hashtag')
+        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(hashtag_tweets)
+        empatia = self.get_empatia_by_group_user(hashtag_tweets)
+        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(hashtag_tweets, 'hashtag')
+        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
+        liderazgo = self.get_liderazgo_by_group_user(hashtag_tweets)
+        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(hashtag_tweets, 'hashtag')
+        violencia = self.get_violencia_by_group(hashtag_tweets, 'hashtag')
+        relacion_social = self.get_relacion_social_by_group(hashtag_tweets, 'hashtag')
+        optimismo = self.get_optimismo_by_group(hashtag_tweets, 'hashtag')
+
+        analysis = Analysis(
+            autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+            comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
+            conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
+            tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
+            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
+            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo=liderazgo)
+        return hashtag_tweets, analysis
+
 
 
 

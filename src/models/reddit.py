@@ -637,5 +637,3 @@ class RedditWrapper(BaseAPIWrapper):
     def analyze_submission_by_id(self, submission_id: str) -> Analysis:
         submission = self.reddit.submission(submission_id)
         return self.analyzer.analyze_submission(submission)
-    
-
