@@ -197,8 +197,6 @@ def get_twitter_users():
     twitter_client = TwitterClient()
     twitter_analyzer = TwitterAnalyzer(dictionary)
     for name in names:
-        if(str(name)=='nan'):
-            break
         user = twitter_client.twitter_client.get_user(name)
         analysis = twitter_analyzer.analyze_user_by_name(name,twitter_client)
         user_data = {
@@ -228,15 +226,12 @@ def get_twitter_hashtags():
     twitter_client = TwitterClient()
     twitter_analyzer = TwitterAnalyzer(dictionary)
     for hashtag in hashtags:
-        if(str(hashtag)=='nan'):
-            break
         analysis = twitter_analyzer.analyze_by_hashtag(hashtag,twitter_client)
         user_data = {
             "name": hashtag,
             "tweets": analysis[0],
             "analysis": analysis[1].toDict(),
             "n_entries": len(analysis[0])
-#
         }
         entries += user_data["n_entries"]
         hashtag_list.append(user_data)

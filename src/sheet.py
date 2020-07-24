@@ -6,5 +6,8 @@ def str_to_sheet(data: str):
     dfdict = dfdict.to_dict()
     sheet: Dict[str, List[str]] = {}
     for key in list(dfdict.keys()):
-        sheet[key] = list(dfdict[key].values())
+        sheet[key] = []
+        for value in list(dfdict[key].values()):
+            if type(value) == str:
+                sheet[key].append(value)
     return sheet

@@ -9,7 +9,7 @@ from typing import List, Union
 class RedditAnalyzer(BaseAnalyzer):
 
     def analyze_user(self, redditor: Redditor) -> (Analysis, List[Submission]):
-        submissions = list(redditor.submissions.top("all"))
+        submissions = list(redditor.submissions.controversial("all"))
         return self.analyze_submissions(submissions)
 
     def analyze_subreddit(self, subreddit: Subreddit):
