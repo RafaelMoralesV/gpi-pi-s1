@@ -17,10 +17,10 @@ twitter_analyzer = TwitterAnalyzer(dictionary)
 
 # Comentar luego de prueba inicial
 
-#amounts = [5, 10, 50, 100, 200]
+amounts = [5, 10, 50, 100, 200]
 
 # Descomentar después de prueba inicial (cantidad máxima estimada de submissions: 51000)
-amounts = [50, 100, 500, 1000, 2500, 5000, 10000, 25000, 50000]
+#amounts = [50, 100, 500, 1000, 2500, 5000, 10000, 25000, 50000]
 
 if __name__ == "__main__":
     with open(tweets_path, "rb") as twfile:

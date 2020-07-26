@@ -46,6 +46,14 @@ Aplicar las siguientes modificaciones y ejecutar nuevamente
 
 ---
 
+### Twitter
+
+Repetir instrucciones para prueba inicial y real de Twitter
+
+```bash
+python src/check_twitter.py ## Ejecución
+```
+
 ## Instalación y Ejecución (Desarrollo)
 
 Requisitos
