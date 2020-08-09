@@ -130,8 +130,11 @@ def analyze_reddit_sub():
     if "sub_id" in data:
         sub_id = data["sub_id"]
         if sub_id != "":
-            analysis = rwrapper.analyze_submission_by_id(sub_id)
-            return jsonify({"analysis" : analysis.toDict()})
+            try:
+                analysis = rwrapper.analyze_submission_by_id(sub_id)
+                return jsonify({"analysis" : analysis.toDict()})
+            except Exception as err:
+                return Response("Registro no encontrado", status=404)
     return Response("", status=400)
 
 
@@ -171,7 +174,11 @@ def get_tweet():
     if "tweet_id" in data: 
         tweet_id = data["tweet_id"]
         tweets_ids = [tweet_id]
-        text_tweets = twitter_client.get_tweet_to_analyze(tweets_ids)
+        text_tweets = []
+        try:
+            text_tweets = twitter_client.get_tweet_to_analyze(tweets_ids)
+        except Exception as err:
+            return Response("Registro no encontrado", status=404)
         autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
         autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
         comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
