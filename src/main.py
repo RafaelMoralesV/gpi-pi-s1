@@ -145,14 +145,15 @@ def download():
 @app.route('/twitter/hashtags/<hashtag>')
 def get_twitter_hashtag(hashtag: str):
     analysis = twitter_analyzer.analyze_by_hashtag(hashtag,twitter_client)
-    data = {
-        "name": hashtag,
-        "tweets": analysis[0],
-        "analysis": analysis[1].toDict(),
-    }
+    #data = {
+    #    "name": hashtag,
+    #    "tweets": analysis[0],
+    #    "analysis": analysis[1].toDict(),
+    #}
     return jsonify({
         "analysis": analysis[1].toDict(),
-        "hashtag" : data,
+        "name": hashtag,
+        "tweets": analysis[0],
         "n_entries": len(analysis[0])
     })
 
@@ -161,11 +162,9 @@ def get_tweets(name: str):
     user = twitter_client.twitter_client.get_user(name)._json
     analysis = twitter_analyzer.analyze_user_by_name(name,twitter_client)
     user["tweets"] = analysis[0]
-    return jsonify({
-        "analysis" : analysis[1].toDict(),
-        "user": user,
-        "n_entries": len(analysis[0])
-     })
+    user["analysis"] = analysis[1].toDict()
+    user["n_entries"] = len(analysis[0])
+    return jsonify(user)
 
 @app.route('/twitter/analyze-tweet', methods=["POST"])
 def get_tweet():
@@ -221,16 +220,19 @@ def get_twitter_users():
         analysis = twitter_analyzer.analyze_user_by_name(name,twitter_client)
         user["analysis"] = analysis[1].toDict()
         user["tweets"] = analysis[0]
-        user_data = {
-            "analysis": analysis[1].toDict(),
-            "user": user,
-            "n_entries": len(analysis[0])
-        }
+        #user_data = {
+        #    "analysis": analysis[1].toDict(),
+        #    "user": user,
+        #    "n_entries": len(analysis[0])
+        #}
+        user_data = user
+        user_data["analysis"] = analysis[1].toDict()
+        user_data["n_entries"] = len(analysis[0])
         entries += user_data["n_entries"]
         users.append(user_data)
     analysis = dict()
-    for key in list(users[0]["user"]["analysis"].keys()):
-        analysis[key] = mean([user_data["user"]["analysis"][key] for user_data in users])
+    for key in list(users[0]["analysis"].keys()):
+        analysis[key] = mean([user_data["analysis"][key] for user_data in users])
     return jsonify({
         "analysis" : analysis,
         "users":users,
@@ -255,18 +257,15 @@ def get_twitter_hashtags():
         analysis = twitter_analyzer.analyze_by_hashtag(hashtag,twitter_client)
         hashtag_data = {
             "analysis": analysis[1].toDict(),
-            "hashtag": {
-                 "name": hashtag,
-                "tweets": analysis[0],
-                "analysis": analysis[1].toDict(),
-            },
+            "name": hashtag,
+            "tweets": analysis[0],
             "n_entries": len(analysis[0])
         }
-        entries += hashtag_data["n_entries"]
+        #entries += hashtag_data["n_entries"]
         hashtag_list.append(hashtag_data)
     analysis = dict()
-    for key in list(hashtag_list[0]["hashtag"]["analysis"].keys()):
-        analysis[key] = mean([hashtag["hashtag"]["analysis"][key] for hashtag in hashtag_list])
+    for key in list(hashtag_list[0]["analysis"].keys()):
+        analysis[key] = mean([hashtag["analysis"][key] for hashtag in hashtag_list])
     return jsonify({
         "analysis": analysis,
         "hashtags":hashtag_list,
@@ -274,8 +273,8 @@ def get_twitter_hashtags():
     })
 
 if __name__ == "__main__":
-    print(default_data["twitter"]["hashtags"]["hashtags"][0].keys())
-    print(default_data["reddit"]["subreddits"]["subreddits"][0].keys())
+    #print(default_data["twitter"]["hashtags"]["hashtags"][0].keys())
+    #print(default_data["reddit"]["subreddits"]["subreddits"][0].keys())
     app.run("127.0.0.1", os.getenv("PORT"), debug=bool(os.getenv("DEBUG")))
 
 
