@@ -9,6 +9,7 @@ from tweepy import Cursor
 from textblob import TextBlob
 from googletrans import Translator
 
+
 class TwitterClient():
 
     def __init__(self, twitter_user=None):
@@ -20,116 +21,59 @@ class TwitterClient():
     def get_twitter_client_api(self):
         return self.twitter_client
 
-    '''
-    def get_hashtag(self, twitter_hashtag):
-        hashtags = []
-        for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(10):
-            hashtags.append({
-                "id": tweet.id,
-                "text": tweet.text
-            })
-        hashtag_data = {
-            "hashtags" : hashtags,
-            "hashtag_name": twitter_hashtag,
-            "n_entries" : len(hashtags)
-        }
-        return hashtag_data
-
-    def get_hashtag_tweets(self, twitter_hashtag):
-        tweets_hashtag = []
-        for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, result_type='recent').items(10):
-            tweets_hashtag.append({
-                "text": tweet.text
-            })
-        return tweets_hashtag
-    '''
-
     def get_hashtag_tweets_to_analyze(self, twitter_hashtag):
-        tweets = []        
+        tweets = []
         translator = Translator()
         for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, count=50, tweet_mode='extended').items(50):
-        	traduce = translator.translate(tweet.full_text,dest='en')
-        	if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
-        		tweets.append({
-        			"id" : tweet.id,
-        			"retweeted" : tweet.retweeted,
-        			"retweet_count " : tweet.retweet_count,
-        			"text" : traduce.text,
-                    "likes" : tweet.favorite_count
-        		})
-        
+            traduce = translator.translate(tweet.full_text, dest='en')
+            if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
+                tweets.append({
+                    "id": tweet.id,
+                    "retweeted": tweet.retweeted,
+                    "retweet_count ": tweet.retweet_count,
+                    "text": traduce.text,
+                    "likes": tweet.favorite_count
+                })
+
         return tweets
 
-
-    '''    
-    def get_tweet(self, name):#tweets user
-        tweets = []
-        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
-            tweets.append({
-            "id": tweet.id,
-            "text": tweet.text
-            }) 
-        tweet_data = {
-            "tweets": tweets,
-            "user":name,
-            "n_entries": len(tweets)
-        }
-        return tweet_data
-    
-    def get_text_tweet(self, name):
-        tweets = []
-        for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name).items(10):
-            tweets.append({
-                "text": tweet.text
-            })
-        return tweets
-        tweepy.Cursor(api.search, q="#"+hashtag, rpp=10).items(limit=15)
-    '''
-    
     def get_tweets_to_analyze(self, name):
-        tweets = []        
+        tweets = []
         translator = Translator()
         for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name, count=50, tweet_mode="extended").items(limit=50):
-        	traduce = translator.translate(tweet.full_text,dest='en')
-        	if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
-        		tweets.append({
-        			"id" : tweet.id,
-        			"retweeted" : tweet.retweeted,
-        			"retweet_count " : tweet.retweet_count,
-        			"text" : traduce.text,
-                    "likes" : tweet.favorite_count
-        		})
+            traduce = translator.translate(tweet.full_text, dest='en')
+            if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
+                tweets.append({
+                    "id": tweet.id,
+                    "retweeted": tweet.retweeted,
+                    "retweet_count ": tweet.retweet_count,
+                    "text": traduce.text,
+                    "likes": tweet.favorite_count
+                })
         return tweets
-
-    # timeline de los tweets
-    '''
-    def get_user_timeline_tweets(self, num_tweets):
-        tweets = []
-        for tweet in Cursor(self.twitter_client.user_timeline, id=self.twitter_user).items(num_tweets):
-            tweets.append(tweet)
-            print(tweets)
-        return tweets
-	'''
 
     def get_tweet_to_analyze(self, tweet_id):
         tweets = []
         tweet = self.twitter_client.statuses_lookup(tweet_id)
         tweets.append({
-            "id" : tweet[0].id,
-        	"retweeted" : tweet[0].retweeted,
-        	"retweet_count " : tweet[0].retweet_count,
-        	"text" : tweet[0].text,
-            "likes" : tweet[0].favorite_count
+            "id": tweet[0].id,
+            "retweeted": tweet[0].retweeted,
+            "retweet_count ": tweet[0].retweet_count,
+            "text": tweet[0].text,
+            "likes": tweet[0].favorite_count
         })
         return tweets
 
 
 class TwitterAuthenticator():
-    # autenticador con las credenciales
+    
     def authenticate_twitter_app(self):
-        auth = OAuthHandler('Nj7SUk7Z6ZlHIixLNZDEw8tWt', 'y5xXNXxMK5P3QQUFpte28cUL7VIOiHViI0qsuECP5gbD07B6PN')
-        auth.set_access_token('1262515401138847746-L46mzlO4lZiLntqiWMnYHMQ7QzrH1g', 'FCEkm1G3AdUBwMFNezJntLq3pVOcBbE8DdVcsqfrQoatE')
+        auth = OAuthHandler('Nj7SUk7Z6ZlHIixLNZDEw8tWt',
+                            'y5xXNXxMK5P3QQUFpte28cUL7VIOiHViI0qsuECP5gbD07B6PN')
+        auth.set_access_token('1262515401138847746-L46mzlO4lZiLntqiWMnYHMQ7QzrH1g',
+                              'FCEkm1G3AdUBwMFNezJntLq3pVOcBbE8DdVcsqfrQoatE')
         return auth
+
 
 class TwitterStreamer():
 
@@ -158,7 +102,7 @@ class TwitterData(StreamListener):
         except BaseException as e:
             print("Error: $s" % str(e))
         return True
-    
+
     def on_error(self, status):
         if status == 420:
             return False
@@ -167,14 +111,14 @@ class TwitterData(StreamListener):
 
 class TwitterAnalyzer(BaseAnalyzer):
 
-
-    #Autoconciencia emocional
+    # Autoconciencia emocional
 
     def get_autoconciencia_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_autoconciencia_by_text(str(tweet["text"]),int(tweet["likes"]))
-        promedio = promedio / len(tweets)
+            promedio += self.get_autoconciencia_by_text(
+                str(tweet["text"]), int(tweet["likes"]))
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     def get_autoconciencia_by_text(self, text: str, likes: int):
@@ -183,11 +127,11 @@ class TwitterAnalyzer(BaseAnalyzer):
         #blob = translator.translate(text,dest='en')
         #blob = TextBlob(blob.text)
         subj = blob.subjectivity
-        matches = self.match_factor_dict(text.lower(), 'autoconciencia_emocional')
+        matches = self.match_factor_dict(
+            text.lower(), 'autoconciencia_emocional')
         match_score = matches*6 if matches <= 5 else 30
         score = subj*70 + match_score
-        return score 
-
+        return score
 
     # Autoestima
 
@@ -195,7 +139,7 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_autoestima_by_text(str(tweet["text"]))
-        promedio = promedio / len(tweets)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     def get_autoestima_by_text(self, text: str):
@@ -206,33 +150,33 @@ class TwitterAnalyzer(BaseAnalyzer):
         score = subj*40 + match_score
         return score
 
-
     # Comprensión Organizativa
 
     def get_comprension_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_comprension_by_text(str(tweet["text"]))
-        return promedio/len(tweets)
-    
+        return promedio/len(tweets) if len(tweets) > 0 else 0
+
     def get_comprension_by_text(self, text: str):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
         subj = blob.subjectivity
-        matches = self.match_factor_dict(text.lower(), 'comprension_organizativa')
+        matches = self.match_factor_dict(
+            text.lower(), 'comprension_organizativa')
         match_score = matches*2 if matches <= 10 else 20
         score = pol*60 + subj*20 + match_score
         return score
 
-    
     # Comunicación Asertiva
 
     def get_comunicacion_asertiva_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_comunicacion_asertiva_by_text(str(tweet["text"]))
-        return promedio/len(tweets)
-    
+            promedio += self.get_comunicacion_asertiva_by_text(
+                str(tweet["text"]))
+        return promedio/len(tweets) if len(tweets) > 0 else 0
+
     def get_comunicacion_asertiva_by_text(self, text: str):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
@@ -242,15 +186,14 @@ class TwitterAnalyzer(BaseAnalyzer):
         score = pol*20 + subj*50 + match_score
         return score
 
-
     # Conciencia Crítica
 
     def get_conciencia_critica_by_group(self, tweets: list):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_conciencia_critica_by_text(str(tweet["text"]))
-        return promedio/len(tweets)
-    
+        return promedio/len(tweets) if len(tweets) > 0 else 0
+
     def get_conciencia_critica_by_text(self, text: str):
         blob = TextBlob(text)
         pol = blob.sentiment.polarity if blob.sentiment.polarity >= 0 else 0
@@ -260,59 +203,60 @@ class TwitterAnalyzer(BaseAnalyzer):
         score = pol*20 + subj*50 + match_score
         #print("CCRITICA  Pol: ",pol," Subj: ",subj," Match: ",match_score, "score", score)
         return score
-    
-    #Motivacion de logro
+
+    # Motivacion de logro
 
     def get_motivacion_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_motivacion_by_text(str(tweet["text"]), tipo)
-        promedio = promedio / len(tweets)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
-    def get_motivacion_by_text(self,text:str, tipo:str):
+    def get_motivacion_by_text(self, text: str, tipo: str):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
         subjectivity = blob.subjectivity
         matches = self.match_factor_dict(text.lower(), 'motivacion_de_logro')
         if(tipo == 'usuario'):
-            match_score = 0.5 if matches >=5 else matches*0.1
-            score = (pol * 0.4 + subjectivity * 0.1 + match_score)*100 # porcentajes distintos en el pdf(?)
+            match_score = 0.5 if matches >= 5 else matches*0.1
+            score = (pol * 0.4 + subjectivity * 0.1 + match_score) * \
+                100  # porcentajes distintos en el pdf(?)
         elif(tipo == 'hashtag'):
-            match_score = 0.5 if matches >=5 else matches*0.1
+            match_score = 0.5 if matches >= 5 else matches*0.1
             score = (pol * 0.3 + subjectivity * 0.2 + match_score)*100
         return score
-  
 
-    #Tolerancia a la frustracion
-    
+    # Tolerancia a la frustracion
+
     def get_tolerancia_by_text(self, text: str, tipo: str):
         blob = TextBlob(text)
-        pol = blob.polarity if blob.polarity >=0 else 0
+        pol = blob.polarity if blob.polarity >= 0 else 0
         subjectivity = blob.subjectivity
-        matches = self.match_factor_dict(text.lower(), 'tolerancia_a_la_frustracion')
+        matches = self.match_factor_dict(
+            text.lower(), 'tolerancia_a_la_frustracion')
         if(tipo == 'usuario'):
             match_score = 0.4 if matches >= 5 else matches * 0.08
-            score = (pol*0.4 + subjectivity *0.2 + match_score)*100
+            score = (pol*0.4 + subjectivity * 0.2 + match_score)*100
         elif(tipo == 'hashtag'):
             match_score = 0.2 if matches >= 5 else matches * 0.04
-            score = (pol*0.5 + subjectivity *0.3 + match_score)*100
+            score = (pol*0.5 + subjectivity * 0.3 + match_score)*100
         return score
-    
+
     def get_tolerancia_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_tolerancia_by_text(str(tweet["text"]), tipo)
-        promedio = promedio / len(tweets)
-        return promedio 
-    
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
+        return promedio
 
-   
-    # Desarrollar y estimular a los demas 
+    # Desarrollar y estimular a los demas
+
     def get_desarrollar_by_text_user(self, text: str):
         blob = TextBlob(text)
-        pol = blob.polarity if blob.polarity >=0 else 0
-        matches = self.match_factor_dict(text.lower(), 'desarrollar_y_estimular_a_los_demas')
+        pol = blob.polarity if blob.polarity >= 0 else 0
+        matches = self.match_factor_dict(
+            text.lower(), 'desarrollar_y_estimular_a_los_demas')
         match_score = 0.1 if matches >= 5 else matches * 0.02
         score = (pol*0.9 + match_score)*100
         return score
@@ -321,11 +265,11 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_desarrollar_by_text_user(str(tweet["text"]))
-        promedio = promedio / len(tweets)
-        return promedio 
-    
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
+        return promedio
 
-    #Empatia 
+    # Empatia
+
     def get_empatia_by_text_user(self, text: str, likes: int):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
@@ -339,30 +283,33 @@ class TwitterAnalyzer(BaseAnalyzer):
     def get_empatia_by_group_user(self, tweets: list):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_empatia_by_text_user(str(tweet["text"]),int(tweet["likes"]))
-        promedio = promedio / len(tweets)
+            promedio += self.get_empatia_by_text_user(
+                str(tweet["text"]), int(tweet["likes"]))
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     # Colaboración y cooperacion
     def get_collaboration_cooperation_by_text(self, text: str, retweet: int, tipo: str):
         blob = TextBlob(text)
         pol = blob.polarity if blob.polarity >= 0 else 0
-        matches = self.match_factor_dict(text.lower(), 'colaboracion_cooperacion')
+        matches = self.match_factor_dict(
+            text.lower(), 'colaboracion_cooperacion')
         if(tipo == 'user'):
             retweet_score = 10 if retweet >= 10 else 0
             match_score = matches if matches >= 3 else 0
         elif(tipo == 'hashtag'):
             retweet_score = 80 if retweet >= 80 else 0
             match_score = matches if matches >= 10 else 0
-        
+
         score = pol*0.2+retweet_score*0.3+match_score*0.5
         return score
 
     def get_collaboration_cooperation_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_collaboration_cooperation_by_text(str(tweet["text"]),int(tweet["retweet_count "]), tipo)
-        promedio = promedio / len(tweets)
+            promedio += self.get_collaboration_cooperation_by_text(
+                str(tweet["text"]), int(tweet["retweet_count "]), tipo)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     # Percepcion y comprension emocional
@@ -370,26 +317,28 @@ class TwitterAnalyzer(BaseAnalyzer):
         blob = TextBlob(text)
         subj = blob.subjectivity
         pol = blob.polarity if blob.polarity >= 0 else 0
-        matches = self.match_factor_dict(text.lower(), 'percepcion_comprension_emocional')
+        matches = self.match_factor_dict(
+            text.lower(), 'percepcion_comprension_emocional')
         if(tipo == 'user'):
             likes_score = 20 if likes >= 20 else 0
             match_score = matches if matches >= 3 else 0
         elif(tipo == 'hashtag'):
             likes_score = 100 if likes >= 100 else 0
             match_score = matches if matches >= 10 else 0
-        
+
         score = pol*0.2+subj*0.2+likes_score*0.1+match_score*0.5
         return score
 
     def get_percepcion_comprension_emocional_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_percepcion_comprension_emocionaln_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
-        promedio = promedio / len(tweets)
+            promedio += self.get_percepcion_comprension_emocionaln_by_text(
+                str(tweet["text"]), int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
-
     # Manejo de Conflictos
+
     def get_manejo_de_conflictos_by_text(self, text: str, likes: int, tipo: str):
         blob = TextBlob(text)
         subj = blob.subjectivity
@@ -398,8 +347,9 @@ class TwitterAnalyzer(BaseAnalyzer):
         full_text = text.split()
         for word in full_text:
             if('#' in word):
-                search_word = word.replace('#','')
-                hashtag_score += self.match_factor_dict(search_word.lower(), 'manejo_de_conflictos')
+                search_word = word.replace('#', '')
+                hashtag_score += self.match_factor_dict(
+                    search_word.lower(), 'manejo_de_conflictos')
         matches = self.match_factor_dict(text.lower(), 'manejo_de_conflictos')
         if(tipo == 'user'):
             hashtag_score = 10 if hashtag_score > 10 else 0
@@ -409,14 +359,15 @@ class TwitterAnalyzer(BaseAnalyzer):
         elif(tipo == 'hashtag'):
             match_score = 30 if matches > 30 else 0
             score = pol*40+subj*30+match_score
-        
+
         return score
 
     def get_manejo_de_conflictos_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_manejo_de_conflictos_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
-        promedio = promedio / len(tweets)
+            promedio += self.get_manejo_de_conflictos_by_text(
+                str(tweet["text"]), int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     # Violencia
@@ -428,8 +379,9 @@ class TwitterAnalyzer(BaseAnalyzer):
         full_text = text.split()
         for word in full_text:
             if('#' in word):
-                search_word = word.replace('#','')
-                hashtag_score += self.match_factor_dict(search_word.lower(), 'violencia')
+                search_word = word.replace('#', '')
+                hashtag_score += self.match_factor_dict(
+                    search_word.lower(), 'violencia')
         matches = self.match_factor_dict(text.lower(), 'violencia')
         if(tipo == 'user'):
             hashtag_score = 10 if hashtag_score > 10 else 0
@@ -439,14 +391,15 @@ class TwitterAnalyzer(BaseAnalyzer):
         elif(tipo == 'hashtag'):
             match_score = 30 if matches > 30 else 0
             score = pol*30+subj*40+match_score
-        
+
         return score
 
     def get_violencia_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_violencia_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
-        promedio = promedio / len(tweets)
+            promedio += self.get_violencia_by_text(
+                str(tweet["text"]), int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     # Relación Social
@@ -458,8 +411,9 @@ class TwitterAnalyzer(BaseAnalyzer):
         full_text = text.split()
         for word in full_text:
             if('#' in word):
-                search_word = word.replace('#','')
-                hashtag_score += self.match_factor_dict(search_word.lower(), 'relacion_social')
+                search_word = word.replace('#', '')
+                hashtag_score += self.match_factor_dict(
+                    search_word.lower(), 'relacion_social')
         matches = self.match_factor_dict(text.lower(), 'relacion_social')
         if(tipo == 'user'):
             hashtag_score = 10 if hashtag_score > 10 else 0
@@ -469,14 +423,15 @@ class TwitterAnalyzer(BaseAnalyzer):
         elif(tipo == 'hashtag'):
             match_score = 20 if matches > 20 else 0
             score = pol*30+subj*50+match_score
-        
+
         return score
 
     def get_relacion_social_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_relacion_social_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
-        promedio = promedio / len(tweets)
+            promedio += self.get_relacion_social_by_text(
+                str(tweet["text"]), int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     # Optimismo
@@ -488,8 +443,9 @@ class TwitterAnalyzer(BaseAnalyzer):
         full_text = text.split()
         for word in full_text:
             if('#' in word):
-                search_word = word.replace('#','')
-                hashtag_score += self.match_factor_dict(search_word.lower(), 'optimismo')
+                search_word = word.replace('#', '')
+                hashtag_score += self.match_factor_dict(
+                    search_word.lower(), 'optimismo')
         matches = self.match_factor_dict(text.lower(), 'optimismo')
         if(tipo == 'user'):
             hashtag_score = 10 if hashtag_score > 10 else 0
@@ -498,25 +454,24 @@ class TwitterAnalyzer(BaseAnalyzer):
         elif(tipo == 'hashtag'):
             match_score = 10 if matches > 10 else 0
             score = pol*20+subj*70+match_score
-        
+
         return score
 
     def get_optimismo_by_group(self, tweets: list, tipo: str):
         promedio = 0
         for tweet in tweets:
-            promedio += self.get_optimismo_by_text(str(tweet["text"]),int(tweet["likes"]), tipo)
-        promedio = promedio / len(tweets)
+            promedio += self.get_optimismo_by_text(
+                str(tweet["text"]), int(tweet["likes"]), tipo)
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
         return promedio
 
     pass
 
-
-
-
     # Liderazgo
+
     def get_liderazgo_by_text_user(self, text: str):
         blob = TextBlob(text)
-        pol = blob.polarity if blob.polarity >=0 else 0
+        pol = blob.polarity if blob.polarity >= 0 else 0
         matches = self.match_factor_dict(text.lower(), 'liderazgo')
         match_score = 0.1 if matches >= 5 else matches * 0.02
         score = (pol*0.9 + match_score)*100
@@ -526,167 +481,114 @@ class TwitterAnalyzer(BaseAnalyzer):
         promedio = 0
         for tweet in tweets:
             promedio += self.get_liderazgo_by_text_user(str(tweet))
-        promedio = promedio / len(tweets)
-        return promedio 
-
+        promedio = promedio / len(tweets) if len(tweets) > 0 else 0
+        return promedio
 
     def analyze_user_by_name(self, name: str, twitter_client: TwitterClient):
         text_tweets = twitter_client.get_tweets_to_analyze(name)
-        autoconciencia_emocional = self.get_autoconciencia_by_group(text_tweets)
+        autoconciencia_emocional = self.get_autoconciencia_by_group(
+            text_tweets)
         autoestima = self.get_autoestima_by_group(text_tweets)
         comprension_organizativa = self.get_comprension_by_group(text_tweets)
-        comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(text_tweets)
+        comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(
+            text_tweets)
         conciencia_critica = self.get_conciencia_critica_by_group(text_tweets)
-        motivacion_de_logro = self.get_motivacion_by_group(text_tweets,'usuario')
+        motivacion_de_logro = self.get_motivacion_by_group(
+            text_tweets, 'usuario')
         tolerancia = self.get_tolerancia_by_group(text_tweets, 'usuario')
-        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(text_tweets)
+        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(
+            text_tweets)
         empatia = self.get_empatia_by_group_user(text_tweets)
-        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(text_tweets, 'user')
-        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
+        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(
+            text_tweets, 'user')
+        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(
+            text_tweets, 'user')
         liderazgo = self.get_liderazgo_by_group_user(text_tweets)
-        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(text_tweets, 'user')
+        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(
+            text_tweets, 'user')
         violencia = self.get_violencia_by_group(text_tweets, 'user')
-        relacion_social = self.get_relacion_social_by_group(text_tweets, 'user')
+        relacion_social = self.get_relacion_social_by_group(
+            text_tweets, 'user')
         optimismo = self.get_optimismo_by_group(text_tweets, 'user')
 
         analysis = Analysis(
-            autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+            autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima,
             comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
-            conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-            tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
+            conciencia_critica=conciencia_critica, motivacion_logro=motivacion_de_logro,
+            tolerancia_frustracion=tolerancia, desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
             empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo=liderazgo)
+            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
 
         return text_tweets, analysis
 
     def analyze_by_hashtag(self, hashtag: str, twitter_client: TwitterClient):
-        hashtag_tweets = twitter_client.get_hashtag_tweets_to_analyze("#" + hashtag)
-        autoconciencia_emocional = self.get_autoconciencia_by_group(hashtag_tweets)
+        hashtag_tweets = twitter_client.get_hashtag_tweets_to_analyze(
+            "#" + hashtag)
+        autoconciencia_emocional = self.get_autoconciencia_by_group(
+            hashtag_tweets)
         autoestima = self.get_autoestima_by_group(hashtag_tweets)
-        comprension_organizativa = self.get_comprension_by_group(hashtag_tweets)
-        comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(hashtag_tweets)
-        conciencia_critica = self.get_conciencia_critica_by_group(hashtag_tweets)
-        motivacion_de_logro = self.get_motivacion_by_group(hashtag_tweets, 'hashtag')
+        comprension_organizativa = self.get_comprension_by_group(
+            hashtag_tweets)
+        comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(
+            hashtag_tweets)
+        conciencia_critica = self.get_conciencia_critica_by_group(
+            hashtag_tweets)
+        motivacion_de_logro = self.get_motivacion_by_group(
+            hashtag_tweets, 'hashtag')
         tolerancia = self.get_tolerancia_by_group(hashtag_tweets, 'hashtag')
-        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(hashtag_tweets)
+        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(
+            hashtag_tweets)
         empatia = self.get_empatia_by_group_user(hashtag_tweets)
-        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(hashtag_tweets, 'hashtag')
-        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
+        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(
+            hashtag_tweets, 'hashtag')
+        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(
+            hashtag_tweets, 'hashtag')
         liderazgo = self.get_liderazgo_by_group_user(hashtag_tweets)
-        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(hashtag_tweets, 'hashtag')
+        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(
+            hashtag_tweets, 'hashtag')
         violencia = self.get_violencia_by_group(hashtag_tweets, 'hashtag')
-        relacion_social = self.get_relacion_social_by_group(hashtag_tweets, 'hashtag')
+        relacion_social = self.get_relacion_social_by_group(
+            hashtag_tweets, 'hashtag')
         optimismo = self.get_optimismo_by_group(hashtag_tweets, 'hashtag')
 
         analysis = Analysis(
-            autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+            autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima,
             comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
-            conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-            tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
+            conciencia_critica=conciencia_critica, motivacion_logro=motivacion_de_logro,
+            tolerancia_frustracion=tolerancia, desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
             empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo=liderazgo)
+            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
         return hashtag_tweets, analysis
 
-    def analyze_by_hashtag(self, hashtag: str, twitter_client: TwitterClient):
-        hashtag_tweets = twitter_client.get_hashtag_tweets_to_analyze("#" + hashtag)
-        autoconciencia_emocional = self.get_autoconciencia_by_group(hashtag_tweets)
-        autoestima = self.get_autoestima_by_group(hashtag_tweets)
-        comprension_organizativa = self.get_comprension_by_group(hashtag_tweets)
-        comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(hashtag_tweets)
-        conciencia_critica = self.get_conciencia_critica_by_group(hashtag_tweets)
-        motivacion_de_logro = self.get_motivacion_by_group(hashtag_tweets, 'hashtag')
-        tolerancia = self.get_tolerancia_by_group(hashtag_tweets, 'hashtag')
-        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(hashtag_tweets)
-        empatia = self.get_empatia_by_group_user(hashtag_tweets)
-        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(hashtag_tweets, 'hashtag')
-        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(hashtag_tweets, 'hashtag')
-        liderazgo = self.get_liderazgo_by_group_user(hashtag_tweets)
-        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(hashtag_tweets, 'hashtag')
-        violencia = self.get_violencia_by_group(hashtag_tweets, 'hashtag')
-        relacion_social = self.get_relacion_social_by_group(hashtag_tweets, 'hashtag')
-        optimismo = self.get_optimismo_by_group(hashtag_tweets, 'hashtag')
-
-        analysis = Analysis(
-            autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
-            comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
-            conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-            tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo=liderazgo)
-        return hashtag_tweets, analysis
-
-    def analyze_hashtag_tweets(self, tweets: list):
-        print(f"[{time.strftime('%H:%M')}] Analizando Autoconciencia Emocional")
+    def analyze_hashtag_tweets(self, tweets: list) -> Analysis:
         autoconciencia_emocional = self.get_autoconciencia_by_group(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Autoestima")
         autoestima = self.get_autoestima_by_group(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Comprensión Organizativa")
         comprension_organizativa = self.get_comprension_by_group(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Asertividad")
         comunicacion_asertiva = self.get_comunicacion_asertiva_by_group(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Conciencia Crítica")
         conciencia_critica = self.get_conciencia_critica_by_group(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Motivación al logro")
         motivacion_de_logro = self.get_motivacion_by_group(tweets, 'hashtag')
-        print(f"[{time.strftime('%H:%M')}] Analizando Tolerancia a la frustración")
         tolerancia = self.get_tolerancia_by_group(tweets, 'hashtag')
-        print(f"[{time.strftime('%H:%M')}] Analizando Desarrollo y Estímulo de los demás")
-        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Empatía")
+        desarrollar_y_estimular_a_los_demas = self.get_desarrollar_by_group_user(
+            tweets)
         empatia = self.get_empatia_by_group_user(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Colaboración y Cooperación")
-        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(tweets, 'hashtag')
-        print(f"[{time.strftime('%H:%M')}] Analizando Comprensión Emocional")
-        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(tweets, 'hashtag')
-        print(f"[{time.strftime('%H:%M')}] Analizando Liderazgo")
+        colaboracion_cooperacion = self.get_collaboration_cooperation_by_group(
+            tweets, 'hashtag')
+        percepcion_comprension_emocional = self.get_percepcion_comprension_emocional_by_group(
+            tweets, 'hashtag')
         liderazgo = self.get_liderazgo_by_group_user(tweets)
-        print(f"[{time.strftime('%H:%M')}] Analizando Manejo de Conflictos")
-        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(tweets, 'hashtag')
-        print(f"[{time.strftime('%H:%M')}] Analizando Violencia")
+        manejo_de_conflictos = self.get_manejo_de_conflictos_by_group(
+            tweets, 'hashtag')
         violencia = self.get_violencia_by_group(tweets, 'hashtag')
-        print(f"[{time.strftime('%H:%M')}] Analizando Relación Social")
         relacion_social = self.get_relacion_social_by_group(tweets, 'hashtag')
-        print(f"[{time.strftime('%H:%M')}] Analizando Optimismo")
         optimismo = self.get_optimismo_by_group(tweets, 'hashtag')
-        
+
         analysis = Analysis(
-            autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+            autoconciencia_emocional=autoconciencia_emocional, autoestima=autoestima,
             comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
-            conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-            tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
+            conciencia_critica=conciencia_critica, motivacion_logro=motivacion_de_logro,
+            tolerancia_frustracion=tolerancia, desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
             empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo=liderazgo)
-        
+            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
+
         return analysis
 
-
-"""
-class TweetAnalyzer():
-    pass
-     def tweets_to_data_frame(self, tweets):
-        df = pd.DataFrame(data=[tweet.text for tweet in tweets], columns=['Tweets'])
-
-        df['id'] = np.array([tweet.id for tweet in tweets])
-        df['len'] = np.array([len(tweet.text) for tweet in tweets])
-        df['favorite_count'] = np.array([tweet.favorite_count for tweet in tweets])
-        #df['retweets'] = np.array([tweet.retweets for tweet in tweets])
-        df['created_at'] = np.array([tweet.created_at for tweet in tweets])
-        #df['favorite'] = np.array([tweet.favorite for tweet in tweets])
-        df['user'] = np.array([tweet.user for tweet in tweets])
-        #df['author'] = np.array([tweet.author for tweet in tweets])
-        #df['favorited'] = np.array([tweet.favorited for tweet in tweets])
-        df['source'] = np.array([tweet.source for tweet in tweets])
-        #df['retweet'] = np.array([tweet.retweet for tweet in tweets])
-        df['retweet_count'] = np.array([tweet.retweet_count for tweet in tweets])
-        #df['retweeted'] = np.array([tweet.retweeted for tweet in tweets])
-        #df['retweeted_status'] = np.array([tweet.retweeted_status for tweet in tweets])
-        #df['text'] = np.array([tweet.text for tweet in tweets])
-        #df['geo'] = np.array([tweet.geo for tweet in tweets])
-        #df['in_reply_to_status_id'] = np.array([tweet.in_reply_to_status_id for tweet in tweets])
-        #df['in_reply_to_screen_name'] = np.array([tweet.in_reply_to_screen_name for tweet in tweets])
-
-        return df
-
-    def data_frame_to_csv(self, dataFrame):
-        dataFrame.to_csv('../../data/tweets.csv', encoding='utf-8')
-        return 'success' """

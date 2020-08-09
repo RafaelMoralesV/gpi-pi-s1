@@ -5,7 +5,6 @@ verify_ssl = true
 
 [scripts]
 dev = "python src/main.py"
-update = "bash ./update.sh"
 
 [dev-packages]
 pylint = "*"
@@ -23,6 +22,8 @@ xlrd = "*"
 python-dotenv = "*"
 googletrans = "*"
 openpyxl = "*"
+pep8 = "*"
+autopep8 = "*"
 
 [requires]
-python_version = "3.7.8"
+python_version = "3.6.9"
