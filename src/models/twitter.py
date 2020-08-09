@@ -26,13 +26,14 @@ class TwitterClient():
         translator = Translator()
         for tweet in Cursor(self.twitter_client.search, q=twitter_hashtag, count=50, tweet_mode='extended').items(50):
             traduce = translator.translate(tweet.full_text, dest='en')
+            tweet = tweet._json
             if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
                 tweets.append({
-                    "id": tweet.id,
-                    "retweeted": tweet.retweeted,
-                    "retweet_count ": tweet.retweet_count,
-                    "text": traduce.text,
-                    "likes": tweet.favorite_count
+                    "id": str(tweet["id"]),
+                    "retweeted": tweet["retweeted"],
+                    "retweet_count ": tweet["retweet_count"],
+                    "text": tweet["full_text"],
+                    "likes": tweet["favorite_count"]
                 })
 
         return tweets
@@ -42,13 +43,14 @@ class TwitterClient():
         translator = Translator()
         for tweet in Cursor(self.twitter_client.user_timeline, screen_name=name, count=50, tweet_mode="extended").items(limit=50):
             traduce = translator.translate(tweet.full_text, dest='en')
+            tweet = tweet._json
             if(TextBlob(traduce.text).subjectivity != 0 and TextBlob(traduce.text).sentiment.polarity != 0):
                 tweets.append({
-                    "id": tweet.id,
-                    "retweeted": tweet.retweeted,
-                    "retweet_count ": tweet.retweet_count,
+                    "id": str(tweet["id"]),
+                    "retweeted": tweet["retweeted"],
+                    "retweet_count ": tweet["retweet_count"],
                     "text": traduce.text,
-                    "likes": tweet.favorite_count
+                    "likes": tweet["favorite_count"]
                 })
         return tweets
 
@@ -56,7 +58,7 @@ class TwitterClient():
         tweets = []
         tweet = self.twitter_client.get_status(tweet_id[0])._json
         tweets.append({
-            "id": tweet["id"],
+            "id": str(tweet["id"]),
             "retweeted": tweet["retweeted"],
             "retweet_count ": tweet["retweet_count"],
             "text": tweet["text"],
