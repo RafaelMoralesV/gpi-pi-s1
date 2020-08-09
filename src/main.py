@@ -59,6 +59,8 @@ def get_reddit_users():
             data: FileStorage = request.files["plantilla"]
             sheet = str_to_sheet(data.stream.read())
             names = sheet["redditors_name"]
+            if len(names) == 0:
+                return Response("Columna Vacía", status=422)
     users: List[dict] = []
     entries: int = 0
     for name in names:
@@ -96,6 +98,8 @@ def get_subreddits():
             data: FileStorage = request.files['plantilla']
             sheet = str_to_sheet(data.stream.read())
             names = sheet["subreddits_name"]
+            if len(names) == 0:
+                return Response("Columna Vacía", status=422)
     subreddits: List[dict] = []
     entries: int = 0
     for name in names:
@@ -145,11 +149,6 @@ def download():
 @app.route('/twitter/hashtags/<hashtag>')
 def get_twitter_hashtag(hashtag: str):
     analysis = twitter_analyzer.analyze_by_hashtag(hashtag,twitter_client)
-    #data = {
-    #    "name": hashtag,
-    #    "tweets": analysis[0],
-    #    "analysis": analysis[1].toDict(),
-    #}
     return jsonify({
         "analysis": analysis[1].toDict(),
         "name": hashtag,
@@ -169,38 +168,38 @@ def get_tweets(name: str):
 @app.route('/twitter/analyze-tweet', methods=["POST"])
 def get_tweet():
     data = request.json
-    if "tweet_id" not in data:
-        return Response("", status=400)
-    tweet_id = data["tweet_id"]
-    tweets_ids = [tweet_id]
-    text_tweets = twitter_client.get_tweet_to_analyze(tweets_ids)
-    autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
-    autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
-    comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
-    comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(text_tweets)
-    conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(text_tweets)
-    motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(text_tweets,'usuario')
-    tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
-    desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
-    empatia = twitter_analyzer.get_empatia_by_group_user(text_tweets)
-    colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(text_tweets, 'user')
-    percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
-    liderazgo = twitter_analyzer.get_liderazgo_by_group_user(text_tweets)
-    manejo_de_conflictos = twitter_analyzer.get_manejo_de_conflictos_by_group(text_tweets, 'user')
-    violencia = twitter_analyzer.get_violencia_by_group(text_tweets, 'user')
-    relacion_social = twitter_analyzer.get_relacion_social_by_group(text_tweets, 'user')
-    optimismo = twitter_analyzer.get_optimismo_by_group(text_tweets, 'user')
-    analysis = Analysis(
-        autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
-        comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
-        conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
-        tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-        empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-        manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo = liderazgo)
+    if "tweet_id" in data: 
+        tweet_id = data["tweet_id"]
+        tweets_ids = [tweet_id]
+        text_tweets = twitter_client.get_tweet_to_analyze(tweets_ids)
+        autoconciencia_emocional = twitter_analyzer.get_autoconciencia_by_group(text_tweets)
+        autoestima = twitter_analyzer.get_autoestima_by_group(text_tweets)
+        comprension_organizativa = twitter_analyzer.get_comprension_by_group(text_tweets)
+        comunicacion_asertiva = twitter_analyzer.get_comunicacion_asertiva_by_group(text_tweets)
+        conciencia_critica = twitter_analyzer.get_conciencia_critica_by_group(text_tweets)
+        motivacion_de_logro = twitter_analyzer.get_motivacion_by_group(text_tweets,'usuario')
+        tolerancia = twitter_analyzer.get_tolerancia_by_group(text_tweets, 'usuario')
+        desarrollar_y_estimular_a_los_demas = twitter_analyzer.get_desarrollar_by_group_user(text_tweets)
+        empatia = twitter_analyzer.get_empatia_by_group_user(text_tweets)
+        colaboracion_cooperacion = twitter_analyzer.get_collaboration_cooperation_by_group(text_tweets, 'user')
+        percepcion_comprension_emocional = twitter_analyzer.get_percepcion_comprension_emocional_by_group(text_tweets, 'user')
+        liderazgo = twitter_analyzer.get_liderazgo_by_group_user(text_tweets)
+        manejo_de_conflictos = twitter_analyzer.get_manejo_de_conflictos_by_group(text_tweets, 'user')
+        violencia = twitter_analyzer.get_violencia_by_group(text_tweets, 'user')
+        relacion_social = twitter_analyzer.get_relacion_social_by_group(text_tweets, 'user')
+        optimismo = twitter_analyzer.get_optimismo_by_group(text_tweets, 'user')
+        analysis = Analysis(
+            autoconciencia_emocional=autoconciencia_emocional,autoestima=autoestima,
+            comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
+            conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
+            tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
+            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
+            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo = liderazgo)
 
-    return jsonify({
-        "analysis" : analysis.toDict()
-    })
+        return jsonify({
+            "analysis" : analysis.toDict()
+        })
+    return Response("", status=400)
 
 @app.route('/twitter/user', methods=["GET","POST"])
 def get_twitter_users():
@@ -213,6 +212,8 @@ def get_twitter_users():
             data: FileStorage = request.files["plantilla"]
             sheet = str_to_sheet(data.stream.read())
             names = sheet["twitter_users"]
+            if len(names) == 0:
+                return Response("Columna Vacía", status=422)
     users: List[dict] = []
     entries: int = 0
     for name in names:
@@ -220,11 +221,6 @@ def get_twitter_users():
         analysis = twitter_analyzer.analyze_user_by_name(name,twitter_client)
         user["analysis"] = analysis[1].toDict()
         user["tweets"] = analysis[0]
-        #user_data = {
-        #    "analysis": analysis[1].toDict(),
-        #    "user": user,
-        #    "n_entries": len(analysis[0])
-        #}
         user_data = user
         user_data["analysis"] = analysis[1].toDict()
         user_data["n_entries"] = len(analysis[0])
@@ -251,6 +247,8 @@ def get_twitter_hashtags():
             data: FileStorage = request.files["plantilla"]
             sheet = str_to_sheet(data.stream.read())
             hashtags = sheet["hashtags"]
+            if len(hashtags) == 0:
+                return Response("Columna Vacía", status=422)
     hashtag_list: List[dict] = []
     entries: int = 0
     for hashtag in hashtags:
@@ -261,7 +259,6 @@ def get_twitter_hashtags():
             "tweets": analysis[0],
             "n_entries": len(analysis[0])
         }
-        #entries += hashtag_data["n_entries"]
         hashtag_list.append(hashtag_data)
     analysis = dict()
     for key in list(hashtag_list[0]["analysis"].keys()):

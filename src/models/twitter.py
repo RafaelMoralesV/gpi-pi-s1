@@ -54,13 +54,13 @@ class TwitterClient():
 
     def get_tweet_to_analyze(self, tweet_id):
         tweets = []
-        tweet = self.twitter_client.statuses_lookup(tweet_id)
+        tweet = self.twitter_client.get_status(tweet_id[0])._json
         tweets.append({
-            "id": tweet[0].id,
-            "retweeted": tweet[0].retweeted,
-            "retweet_count ": tweet[0].retweet_count,
-            "text": tweet[0].text,
-            "likes": tweet[0].favorite_count
+            "id": tweet["id"],
+            "retweeted": tweet["retweeted"],
+            "retweet_count ": tweet["retweet_count"],
+            "text": tweet["text"],
+            "likes": tweet["favorite_count"]
         })
         return tweets
 
@@ -560,7 +560,7 @@ class TwitterAnalyzer(BaseAnalyzer):
             manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
         return hashtag_tweets, analysis
 
-    def analyze_hashtag_tweets(self, tweets: list) -> Analysis:
+    def analyze_hashtag_tweets(self, tweets: list):
         autoconciencia_emocional = self.get_autoconciencia_by_group(tweets)
         autoestima = self.get_autoestima_by_group(tweets)
         comprension_organizativa = self.get_comprension_by_group(tweets)
