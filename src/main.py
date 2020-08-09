@@ -259,6 +259,7 @@ def get_twitter_hashtags():
             "tweets": analysis[0],
             "n_entries": len(analysis[0])
         }
+        entries += hashtag_data["n_entries"]
         hashtag_list.append(hashtag_data)
     analysis = dict()
     for key in list(hashtag_list[0]["analysis"].keys()):
@@ -270,8 +271,6 @@ def get_twitter_hashtags():
     })
 
 if __name__ == "__main__":
-    #print(default_data["twitter"]["hashtags"]["hashtags"][0].keys())
-    #print(default_data["reddit"]["subreddits"]["subreddits"][0].keys())
     app.run("127.0.0.1", os.getenv("PORT"), debug=bool(os.getenv("DEBUG")))
 
 
