@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import List, Union, Dict
 
-def str_to_sheet(data: str):
+def str_to_sheet(data: str) -> Dict[str, List[str]]:
     dfdict: dict = pd.read_excel(data)
     dfdict = dfdict.to_dict()
     sheet: Dict[str, List[str]] = {}

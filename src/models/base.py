@@ -73,12 +73,6 @@ class BaseAnalyzer:
     def analyze_user(self) -> Analysis:
         pass
 
-    def get_asertividad(self):
-        pass
-
-    def get_liderazgo(self):
-        pass
-
 class BaseAPIWrapper:
 
     analyzer : BaseAnalyzer

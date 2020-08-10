@@ -15,7 +15,6 @@ class TwitterClient():
     def __init__(self, twitter_user=None):
         self.auth = TwitterAuthenticator().authenticate_twitter_app()
         self.twitter_client = API(self.auth)
-
         self.twitter_user = twitter_user
 
     def get_twitter_client_api(self):
@@ -35,7 +34,6 @@ class TwitterClient():
                     "text": tweet["full_text"],
                     "likes": tweet["favorite_count"]
                 })
-
         return tweets
 
     def get_tweets_to_analyze(self, name):
@@ -85,7 +83,6 @@ class TwitterStreamer():
     def stream_tweets(self, fetched_tweets_filename, hash_tag_list):
         listener = TwitterData(fetched_tweets_filename)
         auth = self.twitter_autenticator.authenticate_twitter_app()
-
         stream = Stream(auth, listener)
         stream.filter(track=hash_tag_list)
 
@@ -124,10 +121,7 @@ class TwitterAnalyzer(BaseAnalyzer):
         return promedio
 
     def get_autoconciencia_by_text(self, text: str, likes: int):
-        blob = TextBlob(text)
-        #translator = Translator()
-        #blob = translator.translate(text,dest='en')
-        #blob = TextBlob(blob.text)
+        blob = TextBlob(text)  
         subj = blob.subjectivity
         matches = self.match_factor_dict(
             text.lower(), 'autoconciencia_emocional')
@@ -518,9 +512,8 @@ class TwitterAnalyzer(BaseAnalyzer):
             comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
             conciencia_critica=conciencia_critica, motivacion_logro=motivacion_de_logro,
             tolerancia_frustracion=tolerancia, desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
-
+            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_comprension_emocional=percepcion_comprension_emocional,
+            manejo_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
         return text_tweets, analysis
 
     def analyze_by_hashtag(self, hashtag: str, twitter_client: TwitterClient):
@@ -558,8 +551,8 @@ class TwitterAnalyzer(BaseAnalyzer):
             comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
             conciencia_critica=conciencia_critica, motivacion_logro=motivacion_de_logro,
             tolerancia_frustracion=tolerancia, desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
+            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_comprension_emocional=percepcion_comprension_emocional,
+            manejo_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
         return hashtag_tweets, analysis
 
     def analyze_hashtag_tweets(self, tweets: list):
@@ -589,8 +582,7 @@ class TwitterAnalyzer(BaseAnalyzer):
             comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
             conciencia_critica=conciencia_critica, motivacion_logro=motivacion_de_logro,
             tolerancia_frustracion=tolerancia, desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
-
+            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_comprension_emocional=percepcion_comprension_emocional,
+            manejo_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo, liderazgo=liderazgo)
         return analysis
 

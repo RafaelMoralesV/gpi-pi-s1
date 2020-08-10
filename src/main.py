@@ -26,6 +26,7 @@ reddit = praw.Reddit(client_id=os.getenv("REDDIT_CLIENT_ID"), user_agent="my use
 rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 twitter_client = TwitterClient()
 twitter_analyzer = TwitterAnalyzer(dictionary)
+
 default_data = {
     "reddit" :{
         "users" : {},
@@ -137,7 +138,6 @@ def analyze_reddit_sub():
                 return Response("Registro no encontrado", status=404)
     return Response("", status=400)
 
-
 @app.route('/translate', methods=["POST"])
 def translate_text():
     data = request.json
@@ -200,8 +200,8 @@ def get_tweet():
             comprension_organizativa=comprension_organizativa, asertividad=comunicacion_asertiva,
             conciencia_critica=conciencia_critica,motivacion_logro=motivacion_de_logro,
             tolerancia_frustracion=tolerancia,desarrollar_estimular=desarrollar_y_estimular_a_los_demas,
-            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_compresion_emocional=percepcion_comprension_emocional,
-            manejo_de_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo = liderazgo)
+            empatia=empatia, colaboracion_cooperacion=colaboracion_cooperacion, percepcion_comprension_emocional=percepcion_comprension_emocional,
+            manejo_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo = liderazgo)
 
         return jsonify({
             "analysis" : analysis.toDict()
@@ -241,7 +241,6 @@ def get_twitter_users():
         "users":users,
         "n_entries":entries
     })
-
 
 @app.route('/twitter/hashtags', methods=["GET","POST"])
 def get_twitter_hashtags():
