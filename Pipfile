@@ -5,6 +5,7 @@ verify_ssl = true
 
 [scripts]
 dev = "python src/main.py"
+test = "python test/test_endpoints.py"
 
 [dev-packages]
 pylint = "*"
@@ -24,6 +25,7 @@ googletrans = "*"
 openpyxl = "*"
 pep8 = "*"
 autopep8 = "*"
+requests-toolbelt = "*"
 
 [requires]
 python_version = "3.6.9"
