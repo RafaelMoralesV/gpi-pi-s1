@@ -66,24 +66,31 @@ def get_reddit_users():
     entries: int = 0
     for name in names:
         user_data = rwrapper.analyze_user_by_id(name)
+        intel = mean(list(user_data["analysis"].values()))
+        user_data["intel"] = intel
         entries += user_data["n_entries"]
         users.append(user_data)
     analysis = dict()
     for key in list(users[0]["analysis"].keys()):
         analysis[key] = mean([user_data["analysis"][key] for user_data in users])
 
+    intel = mean(list(analysis.values())) 
+    
     return jsonify({
         "analysis": analysis,
         "users":users,
-        "n_entries":entries
+        "n_entries":entries,
+        "intel": intel
     })
 
 @app.route('/reddit/user/<id>', methods=["GET"])
 def get_reddit_user(id: str):
     user_data = rwrapper.analyze_user_by_id(id)
+    intel = mean(list(user_data["analysis"].values())) 
     return jsonify({
         "analysis": user_data["analysis"],
         "user" : user_data,
+        "intel": intel,
         "n_entries" : user_data["n_entries"]
     })
 
@@ -105,13 +112,17 @@ def get_subreddits():
     entries: int = 0
     for name in names:
         subreddit_data = rwrapper.analyze_subreddit_by_id(name)
+        intel = mean(list(subreddit_data["analysis"].values()))
+        subreddit_data["intel"] = intel
         entries += len(subreddit_data["submissions"])
         subreddits.append(subreddit_data)
     analysis = dict()
     for key in list(subreddits[0]["analysis"].keys()):
         analysis[key] = mean([subreddit_data["analysis"][key] for subreddit_data in subreddits])
+    intel = mean(list(analysis.values()))
     return jsonify({
         "analysis" : analysis,
+        "intel": intel,
         "subreddits": subreddits,
         "n_entries" : entries
     })
@@ -119,9 +130,11 @@ def get_subreddits():
 @app.route('/reddit/subreddit/<id>', methods=["GET"])
 def get_subreddit(id: str):
     subreddit_data = rwrapper.analyze_subreddit_by_id(id)
+    intel = mean(list(subreddit_data["analysis"].values()))
     return jsonify({
         "analysis": subreddit_data["analysis"],
         "subreddit" : subreddit_data,
+        "intel" : intel,
         "n_entries": subreddit_data["n_entries"]
     })
 
@@ -132,8 +145,9 @@ def analyze_reddit_sub():
         sub_id = data["sub_id"]
         if sub_id != "":
             try:
-                analysis = rwrapper.analyze_submission_by_id(sub_id)
-                return jsonify({"analysis" : analysis.toDict()})
+                analysis = rwrapper.analyze_submission_by_id(sub_id).toDict()
+                intel = mean(list(analysis.values()))
+                return jsonify({"analysis" : analysis, "intel": intel})
             except Exception as err:
                 return Response("Registro no encontrado", status=404)
     return Response("", status=400)
@@ -152,10 +166,12 @@ def download():
 @app.route('/twitter/hashtags/<hashtag>')
 def get_twitter_hashtag(hashtag: str):
     analysis = twitter_analyzer.analyze_by_hashtag(hashtag,twitter_client)
+    intel = mean(list(analysis[1].toDict().values()))
     return jsonify({
         "analysis": analysis[1].toDict(),
         "name": hashtag,
         "tweets": analysis[0],
+        "intel": intel,
         "n_entries": len(analysis[0])
     })
 
@@ -166,6 +182,7 @@ def get_tweets(name: str):
     user["tweets"] = analysis[0]
     user["analysis"] = analysis[1].toDict()
     user["n_entries"] = len(analysis[0])
+    user["intel"] = mean(list(user["analysis"].values()))
     return jsonify(user)
 
 @app.route('/twitter/analyze-tweet', methods=["POST"])
@@ -204,7 +221,8 @@ def get_tweet():
             manejo_conflictos=manejo_de_conflictos, violencia=violencia, relacion_social=relacion_social, optimismo=optimismo,liderazgo = liderazgo)
 
         return jsonify({
-            "analysis" : analysis.toDict()
+            "analysis" : analysis.toDict(),
+            "intel" : mean(list(analysis.toDict().values()))
         })
     return Response("", status=400)
 
@@ -231,15 +249,18 @@ def get_twitter_users():
         user_data = user
         user_data["analysis"] = analysis[1].toDict()
         user_data["n_entries"] = len(analysis[0])
+        user_data["intel"] = mean(list(user_data["analysis"].values()))
         entries += user_data["n_entries"]
         users.append(user_data)
     analysis = dict()
     for key in list(users[0]["analysis"].keys()):
         analysis[key] = mean([user_data["analysis"][key] for user_data in users])
+    intel = mean(list(analysis.values()))
     return jsonify({
         "analysis" : analysis,
         "users":users,
-        "n_entries":entries
+        "n_entries":entries,
+        "intel": intel
     })
 
 @app.route('/twitter/hashtags', methods=["GET","POST"])
@@ -263,15 +284,18 @@ def get_twitter_hashtags():
             "analysis": analysis[1].toDict(),
             "name": hashtag,
             "tweets": analysis[0],
-            "n_entries": len(analysis[0])
+            "n_entries": len(analysis[0]),
+            "intel" : mean(list(analysis[1].toDict().values()))
         }
         entries += hashtag_data["n_entries"]
         hashtag_list.append(hashtag_data)
     analysis = dict()
     for key in list(hashtag_list[0]["analysis"].keys()):
         analysis[key] = mean([hashtag["analysis"][key] for hashtag in hashtag_list])
+    intel = mean(list(analysis.values()))
     return jsonify({
         "analysis": analysis,
+        "intel" : intel,
         "hashtags":hashtag_list,
         "n_entries":entries
     })
