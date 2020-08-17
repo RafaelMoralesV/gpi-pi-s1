@@ -21,7 +21,7 @@ load_dotenv()
 app = Flask(__name__)
 translator= Translator(to_lang="Spanish")
 CORS(app)
-dictionary = get_dictionary(os.getenv("DICTIONARY_PATH"))
+dictionary = get_dictionary(os.getenv("DATA_PATH") + "diccionario.json")
 reddit = praw.Reddit(client_id=os.getenv("REDDIT_CLIENT_ID"), user_agent="my user agent", client_secret=os.getenv("REDDIT_CLIENT_SECRET"))
 rwrapper = RedditWrapper(reddit, RedditAnalyzer(dictionary))
 twitter_client = TwitterClient()
@@ -38,12 +38,12 @@ default_data = {
     }
 }
 
-with open('./data/reddit.json', "r") as rfile:
+with open(os.getenv("DATA_PATH") + 'reddit.json', "r") as rfile:
     obj = json.load(rfile)
     default_data["reddit"]["users"] = obj["users"]
     default_data["reddit"]["subreddits"] = obj["subreddits"]
 
-with open('./data/twitter.json', "r") as tfile:
+with open(os.getenv("DATA_PATH") + 'twitter.json', "r") as tfile:
     obj = json.load(tfile)
     default_data["twitter"]["users"] = obj["users"]
     default_data["twitter"]["hashtags"] = obj["hashtags"]
